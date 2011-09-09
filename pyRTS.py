@@ -1,7 +1,12 @@
 import pygame, sys
 window_size = width, height = 800, 600
 
-# Worker Class
+def background_redraw(tiless, screen):
+    screen.fill((0,0,0))           
+    for ydrw in range((height/tiless.get_height())+1):
+        for xdrw in range((width/tiless.get_width())+1):
+            screen.blit(tiless,(xdrw*tiless.get_width(),ydrw*tiless.get_height()))
+
 class Worker(pygame.sprite.Sprite):
     def __init__(self,startx,starty):
         pygame.sprite.Sprite.__init__(self)
@@ -10,33 +15,29 @@ class Worker(pygame.sprite.Sprite):
         self.rect.centerx = startx
         self.rect.centery = starty
         self.target_location = startx, starty
-        self.speed = [0,0]
+        self.speedx, self.speedy = 0,0
         
     def update(self):
         if self.rect.centerx > self.target_location[0]:
-            self.speed[0] = -1
+            self.speedx = -1
         elif self.rect.centerx < self.target_location[0]:
-            self.speed[0] = 1
+            self.speedx = 1
         else:
-            self.speed[0] = 0
+            self.speedx = 0
             
         if self.rect.centery > self.target_location[1]:
-            self.speed[1] = -1
+            self.speedy = -1
         elif self.rect.centery < self.target_location[1]:
-            self.speed[1] = 1
+            self.speedy = 1
         else:
-            self.speed[1] = 0
+            self.speedy = 0
 
-        self.rect.move_ip((self.speed))
+        self.rect.move_ip(self.speedx, self.speedy)
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode(window_size) #make window
-           
-    #BackGround
-    tiless = pygame.image.load('canstock3554313.jpg')
-    texture_size = tiless.get_width(), tiless.get_height()
-    texture_amount = (width/texture_size[0])+1, (height/texture_size[1])+1
+    background = pygame.image.load('background.png')
 
     # Sprites and Class Initiazations
     workerSprite = pygame.sprite.RenderClear()
@@ -55,14 +56,11 @@ def main():
                 worker.target_location = event.pos
         
         # Updates
-        screen.fill((0,0,0)) #make redraw background black        
-        workerSprite.update()
         
-        # Draws
-        for ydrw in range(texture_amount[1]):
-            for xdrw in range(texture_amount[0]):
-                screen.blit(tiless,(xdrw*texture_size[0],ydrw*texture_size[1])) #render the surface into the rectangle
-        workerSprite.draw( screen )
+        background_redraw(background, screen)
+        
+        workerSprite.update()
+        workerSprite.draw( screen )        
         
         pygame.display.flip() #update the screen
 
