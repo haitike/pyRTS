@@ -1,4 +1,4 @@
-import pygame, sys
+import pygame, sys, math
 window_size = width, height = 800, 600
 
 def background_redraw(tiless, screen):
@@ -7,32 +7,48 @@ def background_redraw(tiless, screen):
         for xdrw in range((width/tiless.get_width())+1):
             screen.blit(tiless,(xdrw*tiless.get_width(),ydrw*tiless.get_height()))
 
-class Worker(pygame.sprite.Sprite):
+class Unit(pygame.sprite.Sprite):
+    trueX = 0.0
+    trueY = 0.0
+
+class Worker(Unit):
     def __init__(self,startx,starty):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load("worker.png")
         self.rect = self.image.get_rect()
         self.rect.centerx = startx
         self.rect.centery = starty
-        self.target_location = startx, starty
-        self.speedx, self.speedy = 0,0
+        self.trueX, self.trueY = startx * 1.0 , starty * 1.0
+        self.target_location = self.trueX, self.trueY 
+        self.action = 0   # Stopped
         
-    def update(self):
-        if self.rect.centerx > self.target_location[0]:
-            self.speedx = -1
-        elif self.rect.centerx < self.target_location[0]:
-            self.speedx = 1
-        else:
-            self.speedx = 0
+    def update(self):        
+        if self.action == 0:# Stop
+            pass
+        elif self.action == 1: # Move
+            self.rect.centerx = round(self.trueX) 
+            self.rect.centery = round(self.trueY)
+            self.image.blit(self.image, self.rect)
+        
+        if self.trueX > self.target_location[0]:
+            self.trueX -= 0.5
+        elif self.trueX < self.target_location[0]:
+            self.trueX += 0.5
             
-        if self.rect.centery > self.target_location[1]:
-            self.speedy = -1
-        elif self.rect.centery < self.target_location[1]:
-            self.speedy = 1
-        else:
-            self.speedy = 0
-
-        self.rect.move_ip(self.speedx, self.speedy)
+        if self.trueY > self.target_location[1]:
+            self.trueY -= 0.5
+        elif self.trueY < self.target_location[1]:
+            self.trueY += 0.5
+            
+    
+    def move(self,target):
+        self.action = 1
+        self.target_location = target
+        
+        # Pruebas:
+        diagonal = math.sqrt( ((target[0]-self.trueX)**2) + ((target[1]-self.trueY)**2) )
+        print self.trueX, self.trueY
+        print diagonal
 
 def main():
     pygame.init()
@@ -48,20 +64,18 @@ def main():
     clock=pygame.time.Clock()
     while 1:         
         clock.tick(30) #30 FPS
+        
         # events        
         for event in pygame.event.get(): 
             if event.type == pygame.QUIT:
                 sys.exit()       
             if event.type == pygame.MOUSEBUTTONDOWN:
-                worker.target_location = event.pos
+                worker.move(event.pos)
         
         # Updates
-        
         background_redraw(background, screen)
-        
         workerSprite.update()
         workerSprite.draw( screen )        
-        
         pygame.display.flip() #update the screen
 
 if __name__ == '__main__': main()
