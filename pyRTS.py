@@ -8,8 +8,14 @@ def background_redraw(tiless, screen):
             screen.blit(tiless,(xdrw*tiless.get_width(),ydrw*tiless.get_height()))
 
 class Unit(pygame.sprite.Sprite):
-    trueX = 0.0
+    trueX = 0.0 # Float Positions
     trueY = 0.0
+    
+    speed = 1.0 # Default General Speed for units is 1
+    moveX = 0.0  # moveX and moveY are temporal speed variables for diagonals and such.
+    moveY = 0.0
+
+    action = 0   # Unit action begins in 0 (Stopeed)
 
 class Worker(Unit):
     def __init__(self,startx,starty):
@@ -18,9 +24,8 @@ class Worker(Unit):
         self.rect = self.image.get_rect()
         self.rect.centerx = startx
         self.rect.centery = starty
-        self.trueX, self.trueY = startx * 1.0 , starty * 1.0
+        self.trueX, self.trueY = float(startx) , float(starty)
         self.target_location = self.trueX, self.trueY 
-        self.action = 0   # Stopped
         
     def update(self):        
         if self.action == 0:# Stop
@@ -30,25 +35,35 @@ class Worker(Unit):
             self.rect.centery = round(self.trueY)
             self.image.blit(self.image, self.rect)
         
-        if self.trueX > self.target_location[0]:
-            self.trueX -= 0.5
+            self.trueX += self.moveX
+            self.trueY += self.moveY
+        
+        
+        '''if self.trueX > self.target_location[0]:
+            self.trueX -= self.speed
         elif self.trueX < self.target_location[0]:
-            self.trueX += 0.5
+            self.trueX += self.speed
             
         if self.trueY > self.target_location[1]:
-            self.trueY -= 0.5
+            self.trueY -= self.speed
         elif self.trueY < self.target_location[1]:
-            self.trueY += 0.5
-            
+            self.trueY += self.speed
+        
+        print self.moveX, self.moveY'''
     
     def move(self,target):
         self.action = 1
         self.target_location = target
         
-        # Pruebas:
-        diagonal = math.sqrt( ((target[0]-self.trueX)**2) + ((target[1]-self.trueY)**2) )
-        print self.trueX, self.trueY
-        print diagonal
+        dx = self.trueX - self.target_location[0] 
+        dy = self.trueY - self.target_location[1]
+
+        tan = math.atan2(dy,dx) # find angle
+        radians = math.radians(math.degrees(tan) + 180) # convert to radians
+
+        self.moveX = math.cos(radians) * self.speed # cosine * speed
+        self.moveY = math.sin(radians) * self.speed # sine * speed
+        
 
 def main():
     pygame.init()
