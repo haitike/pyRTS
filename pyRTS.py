@@ -1,3 +1,7 @@
+# GPL3: http://www.gnu.org/licenses/gpl-3.0.html
+#
+# PyRTS v 0.1
+
 import pygame, sys, math
 window_size = width, height = 800, 600
 
@@ -11,7 +15,7 @@ class Unit(pygame.sprite.Sprite):
     trueX = 0.0 # Float Positions
     trueY = 0.0
     
-    speed = 1.0 # Default General Speed for units is 1
+    speed = 1.5 # Default General Speed for all units
     moveX = 0.0  # moveX and moveY are temporal speed variables for diagonals and such.
     moveY = 0.0
 
@@ -37,19 +41,11 @@ class Worker(Unit):
         
             self.trueX += self.moveX
             self.trueY += self.moveY
-        
-        
-        '''if self.trueX > self.target_location[0]:
-            self.trueX -= self.speed
-        elif self.trueX < self.target_location[0]:
-            self.trueX += self.speed
-            
-        if self.trueY > self.target_location[1]:
-            self.trueY -= self.speed
-        elif self.trueY < self.target_location[1]:
-            self.trueY += self.speed
-        
-        print self.moveX, self.moveY'''
+
+            # Temporal Stop (To be changed)
+            dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
+            if dlength < self.speed:
+                self.action = 0
     
     def move(self,target):
         self.action = 1
@@ -57,7 +53,7 @@ class Worker(Unit):
         
         dx = self.trueX - self.target_location[0] 
         dy = self.trueY - self.target_location[1]
-
+        
         tan = math.atan2(dy,dx) # find angle
         radians = math.radians(math.degrees(tan) + 180) # convert to radians
 
