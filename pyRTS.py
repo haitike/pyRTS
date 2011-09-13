@@ -23,10 +23,10 @@ def changePlayer( active, players): # Temporal function for switch the player
     return active
         
 class Player():
-    def __init__(self,name="Neutral Player", controllable=False, initial_mineral=0):
+    def __init__(self, name="Neutral Player", controllable=False, initial_mineral=0):
         self.name = name
+        self.units = pygame.sprite.RenderClear()
         self.controllable = controllable
-        self.units = []
         self.mineral = initial_mineral
         self.supply = 0
 
@@ -94,12 +94,8 @@ def main():
     activePlayer = 1 # The player that is controlling the units
 
     # Initial Units
-    players[1].units.append(Worker(150,150))
-    players[2].units.append(Worker(250,50))  
-
-    # Sprite Stuff
-    workerSprite = pygame.sprite.RenderClear()
-    workerSprite.add(players[1].units, players[2].units)
+    players[1].units.add(Worker(150,150))
+    players[2].units.add(Worker(250,50))  
     
     # Main Loop
     clock=pygame.time.Clock()
@@ -120,9 +116,17 @@ def main():
         
         # Updates and Draws
         background_redraw(background, screen)
-        workerSprite.update()
-        workerSprite.draw( screen )
-        
+
+        for i, player in enumerate(players):
+            player.units.update()
+            player.units.draw( screen )
+            if i == activePlayer :
+                color = 0,255,0
+            else:
+                color = 255,0,0
+            for j in player.units:
+                pygame.draw.circle(screen,color,(j.rect.topright),4)
+                
         font = pygame.font.Font(None, 25)
         text = font.render("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].supply)+"S", True,(255,255, 255))
         screen.blit(text, (480,0))
