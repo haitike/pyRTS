@@ -11,7 +11,29 @@ def background_redraw(tiless, screen):
         for xdrw in range((width/tiless.get_width())+1):
             screen.blit(tiless,(xdrw*tiless.get_width(),ydrw*tiless.get_height()))
 
-class Unit(pygame.sprite.Sprite):
+def changePlayer( active, players): # Temporal function for switch the player
+    if active +1 < len(players):
+        active += 1
+    else:
+        active = 0
+
+    if players[active].isControllable() == False:
+        active = changePlayer(active,players)
+
+    return active
+        
+class Player():
+    def __init__(self,name="Neutral Player", controllable=False, initial_mineral=0):
+        self.name = name
+        self.controllable = controllable
+        self.units = []
+        self.mineral = initial_mineral
+        self.supply = 0
+
+    def isControllable(self):
+        return self.controllable
+    
+class Unit(pygame.sprite.Sprite):    
     trueX = 0.0 # Float Positions
     trueY = 0.0
     
@@ -22,7 +44,7 @@ class Unit(pygame.sprite.Sprite):
     action = 0   # Unit action begins in 0 (Stopeed)
 
 class Worker(Unit):
-    def __init__(self,startx,starty):
+    def __init__(self, startx,starty):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load("worker.png")
         self.rect = self.image.get_rect()
@@ -35,7 +57,6 @@ class Worker(Unit):
         if self.action == 0:# Stop
             pass
         elif self.action == 1: # Move
-        
             dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
             if dlength < self.speed:
                 self.trueX = self.target_location[0]
@@ -68,11 +89,18 @@ def main():
     screen = pygame.display.set_mode(window_size) #make window
     background = pygame.image.load('background.png')
 
-    # Sprites and Class Initiazations
-    workerSprite = pygame.sprite.RenderClear()
-    worker = Worker(150,150)    
-    workerSprite.add(worker)
+    #players
+    players = [Player("Neutral"), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
+    activePlayer = 1 # The player that is controlling the units
 
+    # Initial Units
+    players[1].units.append(Worker(150,150))
+    players[2].units.append(Worker(250,50))  
+
+    # Sprite Stuff
+    workerSprite = pygame.sprite.RenderClear()
+    workerSprite.add(players[1].units, players[2].units)
+    
     # Main Loop
     clock=pygame.time.Clock()
     while 1:         
@@ -81,14 +109,24 @@ def main():
         # events        
         for event in pygame.event.get(): 
             if event.type == pygame.QUIT:
-                sys.exit()       
+                sys.exit()            
             if event.type == pygame.MOUSEBUTTONDOWN:
-                worker.move(event.pos)
+                if event.button == 2:              
+                    activePlayer = changePlayer(activePlayer, players)
+                if event.button == 3:
+                    for unit in players[activePlayer].units:
+                        unit.move(event.pos)
+
         
-        # Updates
+        # Updates and Draws
         background_redraw(background, screen)
         workerSprite.update()
-        workerSprite.draw( screen )        
+        workerSprite.draw( screen )
+        
+        font = pygame.font.Font(None, 25)
+        text = font.render("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].supply)+"S", True,(255,255, 255))
+        screen.blit(text, (480,0))
+        
         pygame.display.flip() #update the screen
 
 if __name__ == '__main__': main()

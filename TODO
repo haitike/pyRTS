@@ -1,4 +1,2 @@
-Test Stop System
 Fix the "dance" sprite draw while moving.
 Fix the bug when you move a unit to "Top-Left Corner" the sprite decolours.
-HotSeat Player Switcher
