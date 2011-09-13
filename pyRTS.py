@@ -42,6 +42,7 @@ class Unit(pygame.sprite.Sprite):
     moveY = 0.0
 
     action = 0   # Unit action begins in 0 (Stopeed)
+    selected = False
 
 class Worker(Unit):
     def __init__(self, startx,starty):
@@ -107,6 +108,12 @@ def main():
             if event.type == pygame.QUIT:
                 sys.exit()            
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    ### temporal
+                    for i in players[activePlayer].units:
+                        if i.selected == False: i.selected = True
+                        else: i.selected = False
+                    ### temporal
                 if event.button == 2:              
                     activePlayer = changePlayer(activePlayer, players)
                 if event.button == 3:
@@ -126,6 +133,8 @@ def main():
                 color = 255,0,0
             for j in player.units:
                 pygame.draw.circle(screen,color,(j.rect.topright),4)
+                if j.selected == True:
+                    pygame.draw.circle(screen,(0,255,0), (j.rect.center) , 20, 1)
                 
         font = pygame.font.Font(None, 25)
         text = font.render("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].supply)+"S", True,(255,255, 255))

@@ -1,2 +1,5 @@
 Fix the "dance" sprite draw while moving.
 Fix the bug when you move a unit to "Top-Left Corner" the sprite decolours.
+Assign each player a RGB color in the class and draw it
+Draw the top text (player active) in the player RGB color.
+Left button click collide mouse/sprite, unit.selected
