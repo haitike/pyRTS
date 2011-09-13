@@ -35,17 +35,19 @@ class Worker(Unit):
         if self.action == 0:# Stop
             pass
         elif self.action == 1: # Move
+        
+            dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
+            if dlength < self.speed:
+                self.trueX = self.target_location[0]
+                self.trueY = self.target_location[1]                
+                self.action = 0
+            else:
+                self.trueX += self.moveX
+                self.trueY += self.moveY
+                
             self.rect.centerx = round(self.trueX) 
             self.rect.centery = round(self.trueY)
             self.image.blit(self.image, self.rect)
-        
-            self.trueX += self.moveX
-            self.trueY += self.moveY
-
-            # Temporal Stop (To be changed)
-            dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
-            if dlength < self.speed:
-                self.action = 0
     
     def move(self,target):
         self.action = 1
