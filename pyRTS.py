@@ -109,17 +109,18 @@ def main():
                 sys.exit()            
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    ### temporal
                     for i in players[activePlayer].units:
-                        if i.selected == False: i.selected = True
-                        else: i.selected = False
-                    ### temporal
+                        mouse_x, mouse_y = pygame.mouse.get_pos()
+                        mouse_width, mouse_height = pygame.mouse.get_cursor()[0]
+                        if i.trueX - mouse_width < mouse_x < i.trueX + i.rect.width and i.trueY - mouse_height < mouse_y < i.trueY + i.rect.height:
+                            i.selected = True
+                        else:
+                            i.selected = False
                 if event.button == 2:              
                     activePlayer = changePlayer(activePlayer, players)
                 if event.button == 3:
                     for unit in players[activePlayer].units:
                         unit.move(event.pos)
-
         
         # Updates and Draws
         background_redraw(background, screen)
