@@ -3,7 +3,8 @@
 # PyRTS v 0.1
 
 import pygame, sys, math
-window_size = width, height = 800, 600
+WINDOW_SIZE = width, height = 800, 600
+SELECTION_EXTRAX, SELECTION_EXTRAY = 20, 20
 
 def background_redraw(tiless, screen):
     screen.fill((0,0,0))           
@@ -28,10 +29,15 @@ class Player():
         self.units = pygame.sprite.RenderClear()
         self.controllable = controllable
         self.mineral = initial_mineral
-        self.supply = 0
 
     def isControllable(self):
         return self.controllable
+    
+    def getSupply(self):
+        supply = 0 
+        for unit in self.units:
+            supply += unit.supply
+        return supply
     
 class Unit(pygame.sprite.Sprite):    
     trueX = 0.0 # Float Positions
@@ -42,18 +48,33 @@ class Unit(pygame.sprite.Sprite):
     moveY = 0.0
 
     action = 0   # Unit action begins in 0 (Stopeed)
+    image_file = "placeholder.png"
+    supply = 0
+    
     selected = False
 
-class Worker(Unit):
     def __init__(self, startx,starty):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("worker.png")
+        self.image = pygame.image.load(self.image_file)
         self.rect = self.image.get_rect()
         self.rect.centerx = startx
         self.rect.centery = starty
         self.trueX, self.trueY = float(startx) , float(starty)
         self.target_location = self.trueX, self.trueY 
-        
+
+
+    def update(self): 
+            self.rect.centerx = round(self.trueX) 
+            self.rect.centery = round(self.trueY)
+            self.image.blit(self.image, self.rect)
+
+    def move(self,target):
+        pass
+
+class Worker(Unit):
+    image_file = "worker.png"
+    supply = 1
+    
     def update(self):        
         if self.action == 0:# Stop
             pass
@@ -83,11 +104,13 @@ class Worker(Unit):
 
         self.moveX = math.cos(radians) * self.speed # cosine * speed
         self.moveY = math.sin(radians) * self.speed # sine * speed
-        
+
+class Command_Center(Unit):
+        image_file = "command_center.png"
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode(window_size) #make window
+    screen = pygame.display.set_mode(WINDOW_SIZE) #make window
     background = pygame.image.load('background.png')
 
     #players
@@ -95,7 +118,11 @@ def main():
     activePlayer = 1 # The player that is controlling the units
 
     # Initial Units
-    players[1].units.add(Worker(150,150))
+    players[1].units.add(Command_Center(125,125))
+    players[1].units.add(Worker(75,75))
+    players[1].units.add(Worker(175,75))
+    players[1].units.add(Worker(75,175))
+    players[1].units.add(Worker(175,175))
     players[2].units.add(Worker(250,50))  
     
     # Main Loop
@@ -135,13 +162,13 @@ def main():
                 color = 0,255,0
             else:
                 color = 255,0,0
-            for j in player.units:
-                pygame.draw.circle(screen,color,(j.rect.topright),4)
-                if j.selected == True:
-                    pygame.draw.circle(screen,(0,255,0), (j.rect.center) , 20, 1)
+            for unit in player.units:
+                pygame.draw.circle(screen,color,(unit.rect.topright),4)
+                if unit.selected == True:
+                    pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
                 
         font = pygame.font.Font(None, 25)
-        text = font.render("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].supply)+"S", True,(255,255, 255))
+        text = font.render("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].getSupply())+"S", True,(255,255, 255))
         screen.blit(text, (480,0))
         
         pygame.display.flip() #update the screen
