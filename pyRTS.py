@@ -109,18 +109,21 @@ def main():
                 sys.exit()            
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    for i in players[activePlayer].units:
+                    for unit in players[activePlayer].units:
                         mouse_x, mouse_y = pygame.mouse.get_pos()
                         mouse_width, mouse_height = pygame.mouse.get_cursor()[0]
-                        if i.trueX - mouse_width < mouse_x < i.trueX + i.rect.width and i.trueY - mouse_height < mouse_y < i.trueY + i.rect.height:
-                            i.selected = True
+                        if unit.trueX - mouse_width < mouse_x < unit.trueX + unit.rect.width and unit.trueY - mouse_height < mouse_y < unit.trueY + unit.rect.height:
+                            unit.selected = True
                         else:
-                            i.selected = False
-                if event.button == 2:              
+                            unit.selected = False
+                if event.button == 2:    
+                    # Switch the "player" you handle. Deselect all units.
+                    for unit in players[activePlayer].units: unit.selected = False
                     activePlayer = changePlayer(activePlayer, players)
                 if event.button == 3:
                     for unit in players[activePlayer].units:
-                        unit.move(event.pos)
+                        if unit.selected == True:  
+                            unit.move(event.pos)
         
         # Updates and Draws
         background_redraw(background, screen)
