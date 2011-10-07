@@ -11,7 +11,11 @@ class actions:
     STOP = 0
     MOVE = 1
     BUILD = 2
-
+    HARVEST = 3
+class u_id:
+    MINERAL = 0
+    CC = 20
+    WORKER = 50
 
 def multiRender(lines, font, antialias, color, position, background):
     # RenderFont for multiple lines of text in a list.
@@ -55,8 +59,13 @@ class Player():
         return supply
     
 class Unit(pygame.sprite.Sprite):    
+
+    image_file = DATA+"placeholder.png"    
     
-    #Variables
+    owner = None
+    id = None
+    name = None
+    
     trueX = 0.0 # Float Positions
     trueY = 0.0
     
@@ -65,7 +74,7 @@ class Unit(pygame.sprite.Sprite):
     moveY = 0.0
 
     action = actions.STOP   # Unit action begins in 0 (Stopeed)
-    image_file = DATA+"placeholder.png"
+    hp = 0
     supply = 0
     cost = 0
     building_time = 0
@@ -75,32 +84,53 @@ class Unit(pygame.sprite.Sprite):
     selected = False
     targetable = True
 
-    def __init__(self, startx,starty):
+    def __init__(self, startx,starty,owner):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(self.image_file)
         self.rect = self.image.get_rect()
         self.rect.centerx = startx
         self.rect.centery = starty
         self.trueX, self.trueY = float(startx) , float(starty)
-        self.target_location = self.trueX, self.trueY 
+        self.target_location = self.trueX, self.trueY
+        self.owner = owner
 
-
-    def update(self,players,active): 
+    def update(self,players): 
             self.rect.centerx = round(self.trueX) 
             self.rect.centery = round(self.trueY)
             self.image.blit(self.image, self.rect)
 
-    def move(self,target):
-        pass
+    def changeImage(self,image_file):
+        self.image = pygame.image.load(image_file)
+        self.rect = self.image.get_rect()
+        
+    def isPressed(self,mouse):
+        if mouse[0] > self.rect.topleft[0]:
+            if mouse[1] > self.rect.topleft[1]:
+                if mouse[0] < self.rect.bottomright[0]:
+                    if mouse[1] < self.rect.bottomright[1]:
+                        return True
+                    else: return False
+                else: return False
+            else: return False
+        else: return False
 
 class Worker(Unit):
     image_file = DATA+"worker.png"
+    image_file2 = DATA+"worker_with_mineral.png"
+    id = u_id.WORKER
+    name = "Worker"
+    hp = 20
     supply = 1
     cost = 50
     type = "unit"
-    building_time = 10
+    building_time = 100.0
+    harvest_amount = 10
+    harvest_time = 100.0
+    harvest_progress = 0
+    with_mineral = False
+    mineral_target = None
     
-    def update(self, players,active):        
+    def update(self, players):                
         if self.action == actions.STOP:
             pass
         elif self.action == actions.MOVE:
@@ -112,16 +142,29 @@ class Worker(Unit):
             else:
                 self.trueX += self.moveX
                 self.trueY += self.moveY
-                
-            self.rect.centerx = round(self.trueX) 
-            self.rect.centery = round(self.trueY)
-            self.image.blit(self.image, self.rect)
             
             for player in players:
                 for unit in player.units:
                     if pygame.sprite.collide_rect( self, unit):
-                        if self != unit:
-                            self.action = actions.STOP   
+                        if unit.id == u_id.MINERAL and self.with_mineral == False:
+                            self.harvest(unit)
+                        elif unit.id == u_id.CC and unit.owner == self.owner and self.with_mineral == True:
+                            self.returnCargo(players[unit.owner]) 
+                        elif self != unit:
+                            self.action = actions.STOP 
+            
+        elif self.action == actions.HARVEST:
+            if self.harvest_progress <= 0:
+                self.changeImage(self.image_file2)
+                self.with_mineral = True
+                self.mineral_target.hp -= self.harvest_amount
+                self.action = actions.STOP
+            else:
+                self.harvest_progress -= 1.0
+        
+        self.rect.centerx = round(self.trueX) 
+        self.rect.centery = round(self.trueY)
+        self.image.blit(self.image, self.rect)
     
     def move(self,target):
         self.action = actions.MOVE
@@ -135,27 +178,45 @@ class Worker(Unit):
 
         self.moveX = math.cos(radians) * self.speed # cosine * speed
         self.moveY = math.sin(radians) * self.speed # sine * speed
-
+    
+    def harvest(self,mineral):
+        self.harvest_progress = self.harvest_time
+        self.mineral_target = mineral
+        self.action = actions.HARVEST
+        
+    def getHarvestingProgress(self):
+        return ( (self.harvest_time - self.harvest_progress) / self.harvest_time)
+    
+    def returnCargo(self, player):
+        player.mineral += self.harvest_amount
+        self.with_mineral = False
+        self.changeImage(self.image_file)
+        
+    
 class Command_Center(Unit):
         image_file =  DATA+"command_center.png"
+        id = u_id.CC
+        name = "Command_Center"
         type = "building"
+        hp = 250
         cost = 400
-        building_time = 150
+        building_time = 1500.0
         
-        def update(self, players,active):
+        def update(self, players):
             if self.action == actions.STOP:
                 pass
             if self.action == actions.BUILD:
                 if self.building_progress <= 0:
-                    players[active].units.add(Worker(self.rect.centerx,self.rect.centery+self.rect.height))
+                    players[self.owner].units.add(Worker(self.rect.centerx,self.rect.centery+self.rect.height,self.owner))
                     self.action = actions.STOP
                 else:
-                    self.building_progress -= 1.0/FPS
-        def train(self, player):
-            if player.mineral >= Worker.cost:
+                    self.building_progress -= 1
+                    
+        def train(self, players):
+            if players[self.owner].mineral >= Worker.cost and self.action == actions.STOP:
                 self.building_progress = Worker.building_time
                 self.action = actions.BUILD
-                player.mineral -= Worker.cost
+                players[self.owner].mineral -= Worker.cost
             else:
                 sound = pygame.mixer.Sound(DATA+"beep.wav")
                 sound.play()
@@ -165,8 +226,15 @@ class Command_Center(Unit):
 
 class Mineral(Unit):
         image_file = DATA+"mineral.png"
+        id = u_id.MINERAL
+        name = "Mineral"
         type = "resourse"
+        hp = 50
         targetable = False
+        
+        def update(self, players):
+            if self.hp <= 0:
+                self.kill()
 
 def main():
     pygame.init()
@@ -180,19 +248,19 @@ def main():
     activePlayer = 1 # The player that is controlling the units
 
     # Initial Units
-    players[0].units.add(Mineral(300,100))
-    players[0].units.add(Mineral(600,100))
-    players[0].units.add(Command_Center(425,525))
-    players[1].units.add(Command_Center(125,125))
-    players[1].units.add(Worker(75,75))
-    players[1].units.add(Worker(175,75))
-    players[1].units.add(Worker(75,175))
-    players[1].units.add(Worker(175,175))
-    players[2].units.add(Command_Center(425,125))
-    players[2].units.add(Worker(375,75))
-    players[2].units.add(Worker(475,75))
-    players[2].units.add(Worker(375,175))
-    players[2].units.add(Worker(475,175))
+    players[0].units.add(Mineral(300,100,0))
+    players[0].units.add(Mineral(600,100,0))
+    players[0].units.add(Command_Center(425,525,0))
+    players[1].units.add(Command_Center(125,125,1))
+    players[1].units.add(Worker(75,75,1))
+    players[1].units.add(Worker(175,75,1))
+    players[1].units.add(Worker(75,175,1))
+    players[1].units.add(Worker(175,175,1))
+    players[2].units.add(Command_Center(425,125,2))
+    players[2].units.add(Worker(375,75,2))
+    players[2].units.add(Worker(475,75,2))
+    players[2].units.add(Worker(375,175,2))
+    players[2].units.add(Worker(475,175,2))
 
     
     # Main Loop
@@ -207,9 +275,7 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     for unit in players[activePlayer].units:
-                        mouse_x, mouse_y = pygame.mouse.get_pos()
-                        mouse_width, mouse_height = pygame.mouse.get_cursor()[0]
-                        if unit.trueX - mouse_width < mouse_x < unit.trueX + unit.rect.width and unit.trueY - mouse_height < mouse_y < unit.trueY + unit.rect.height:
+                        if unit.isPressed(pygame.mouse.get_pos()):
                             unit.selected = True
                         else:
                             unit.selected = False
@@ -218,19 +284,19 @@ def main():
                     activePlayer = changePlayer(activePlayer, players)
                 if event.button == 3:
                     for unit in players[activePlayer].units:
-                        if unit.selected == True:  
+                        if unit.selected == True and unit.type == "unit":  
                             unit.move(event.pos)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
                     for unit in players[activePlayer].units:
-                        if unit.type == "building" and unit.selected == True:
-                            unit.train(players[activePlayer])
+                        if unit.id == u_id.CC and unit.selected == True:
+                            unit.train(players)
         
         # Updates and Draws
         background_redraw(background, screen)
 
         for i, player in enumerate(players):
-            player.units.update(players,activePlayer)
+            player.units.update(players)
             player.units.draw( screen )
             if i == activePlayer :
                 color = 0,255,0
@@ -243,9 +309,11 @@ def main():
                     pygame.draw.circle(screen,color,(unit.rect.topright),4)
                 if unit.selected == True:
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
-                if unit.type == "building" and unit.action == actions.BUILD:
+                if unit.action == actions.BUILD:
                     pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getBuildingProgress(),5))
-        
+                if unit.action == actions.HARVEST:
+                    pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getHarvestingProgress(),5))
+                    
         font = pygame.font.Font(None, 25)
         multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].getSupply())+"S"], font, True, (255,255,255),(480,0),screen)
         multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","T Key: Train Worker"], font, True, (255,255,255),(550,520),screen)
