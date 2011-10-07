@@ -4,3 +4,5 @@ Assign each player a RGB color in the class and draw it
 Draw the top text (player active) in the player RGB color.
 Building class? Building boolean? Dont command to move to buildings, etc.
 Collision and no unit pass trhought.
+You can select units from all players, enemies or not
+Scroll!
