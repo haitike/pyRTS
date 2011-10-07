@@ -5,6 +5,20 @@
 import pygame, sys, math
 WINDOW_SIZE = width, height = 800, 600
 SELECTION_EXTRAX, SELECTION_EXTRAY = 20, 20
+DATA = "data/"
+FPS = 30
+class actions:
+    STOP = 0
+    MOVE = 1
+    BUILD = 2
+
+
+def multiRender(lines, font, antialias, color, position, background):
+    # RenderFont for multiple lines of text in a list.
+    fontHeight = font.get_height()
+    text = [font.render(line, antialias, color) for line in lines]
+    for i in range(len(lines)):
+        background.blit(text[i], (position[0],position[1]+(i*fontHeight)))
 
 def background_redraw(tiless, screen):
     screen.fill((0,0,0))           
@@ -41,6 +55,8 @@ class Player():
         return supply
     
 class Unit(pygame.sprite.Sprite):    
+    
+    #Variables
     trueX = 0.0 # Float Positions
     trueY = 0.0
     
@@ -48,10 +64,14 @@ class Unit(pygame.sprite.Sprite):
     moveX = 0.0  # moveX and moveY are temporal speed variables for diagonals and such.
     moveY = 0.0
 
-    action = 0   # Unit action begins in 0 (Stopeed)
-    image_file = "placeholder.png"
+    action = actions.STOP   # Unit action begins in 0 (Stopeed)
+    image_file = DATA+"placeholder.png"
     supply = 0
+    cost = 0
+    building_time = 0
+    building_progress = 0
     
+    type = None
     selected = False
     targetable = True
 
@@ -65,7 +85,7 @@ class Unit(pygame.sprite.Sprite):
         self.target_location = self.trueX, self.trueY 
 
 
-    def update(self,players): 
+    def update(self,players,active): 
             self.rect.centerx = round(self.trueX) 
             self.rect.centery = round(self.trueY)
             self.image.blit(self.image, self.rect)
@@ -74,18 +94,21 @@ class Unit(pygame.sprite.Sprite):
         pass
 
 class Worker(Unit):
-    image_file = "worker.png"
+    image_file = DATA+"worker.png"
     supply = 1
+    cost = 50
+    type = "unit"
+    building_time = 10
     
-    def update(self, players):        
-        if self.action == 0:# Stop
+    def update(self, players,active):        
+        if self.action == actions.STOP:
             pass
-        elif self.action == 1: # Move
+        elif self.action == actions.MOVE:
             dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
             if dlength < self.speed:
                 self.trueX = self.target_location[0]
                 self.trueY = self.target_location[1]                
-                self.action = 0
+                self.action = actions.STOP
             else:
                 self.trueX += self.moveX
                 self.trueY += self.moveY
@@ -98,10 +121,10 @@ class Worker(Unit):
                 for unit in player.units:
                     if pygame.sprite.collide_rect( self, unit):
                         if self != unit:
-                            self.action = 0   
+                            self.action = actions.STOP   
     
     def move(self,target):
-        self.action = 1
+        self.action = actions.MOVE
         self.target_location = target
         
         dx = self.trueX - self.target_location[0] 
@@ -114,16 +137,41 @@ class Worker(Unit):
         self.moveY = math.sin(radians) * self.speed # sine * speed
 
 class Command_Center(Unit):
-        image_file = "command_center.png"
+        image_file =  DATA+"command_center.png"
+        type = "building"
+        cost = 400
+        building_time = 150
         
+        def update(self, players,active):
+            if self.action == actions.STOP:
+                pass
+            if self.action == actions.BUILD:
+                if self.building_progress <= 0:
+                    players[active].units.add(Worker(self.rect.centerx,self.rect.centery+self.rect.height))
+                    self.action = actions.STOP
+                else:
+                    self.building_progress -= 1.0/FPS
+        def train(self, player):
+            if player.mineral >= Worker.cost:
+                self.building_progress = Worker.building_time
+                self.action = actions.BUILD
+                player.mineral -= Worker.cost
+            else:
+                sound = pygame.mixer.Sound(DATA+"beep.wav")
+                sound.play()
+        
+        def getBuildingProgress(self):
+            return (Worker.building_time - self.building_progress) / Worker.building_time
+
 class Mineral(Unit):
-        image_file = "mineral.png"
+        image_file = DATA+"mineral.png"
+        type = "resourse"
         targetable = False
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode(WINDOW_SIZE) #make window
-    background = pygame.image.load('background.png')
+    background = pygame.image.load(DATA+'background.png')
 
     #players
     players = [Player("Neutral"), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
@@ -133,18 +181,24 @@ def main():
 
     # Initial Units
     players[0].units.add(Mineral(300,100))
-    players[0].units.add(Command_Center(325,225))
+    players[0].units.add(Mineral(600,100))
+    players[0].units.add(Command_Center(425,525))
     players[1].units.add(Command_Center(125,125))
     players[1].units.add(Worker(75,75))
     players[1].units.add(Worker(175,75))
     players[1].units.add(Worker(75,175))
     players[1].units.add(Worker(175,175))
-    players[2].units.add(Worker(450,50))  
+    players[2].units.add(Command_Center(425,125))
+    players[2].units.add(Worker(375,75))
+    players[2].units.add(Worker(475,75))
+    players[2].units.add(Worker(375,175))
+    players[2].units.add(Worker(475,175))
+
     
     # Main Loop
     clock=pygame.time.Clock()
     while 1:         
-        clock.tick(30) #30 FPS
+        clock.tick(FPS) #30 FPS
         
         # events        
         for event in pygame.event.get(): 
@@ -168,13 +222,15 @@ def main():
                             unit.move(event.pos)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
-                    players[activePlayer].units.add(Worker(250,460))                  
+                    for unit in players[activePlayer].units:
+                        if unit.type == "building" and unit.selected == True:
+                            unit.train(players[activePlayer])
         
         # Updates and Draws
         background_redraw(background, screen)
 
         for i, player in enumerate(players):
-            player.units.update(players)
+            player.units.update(players,activePlayer)
             player.units.draw( screen )
             if i == activePlayer :
                 color = 0,255,0
@@ -187,12 +243,12 @@ def main():
                     pygame.draw.circle(screen,color,(unit.rect.topright),4)
                 if unit.selected == True:
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
-        
+                if unit.type == "building" and unit.action == actions.BUILD:
+                    pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getBuildingProgress(),5))
         
         font = pygame.font.Font(None, 25)
-        text = font.render("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].getSupply())+"S", True,(255,255, 255))
-        screen.blit(text, (480,0))
-        
+        multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].getSupply())+"S"], font, True, (255,255,255),(480,0),screen)
+        multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","T Key: Train Worker"], font, True, (255,255,255),(550,520),screen)
         pygame.display.flip() #update the screen
 
 if __name__ == '__main__': main()
