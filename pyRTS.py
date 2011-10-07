@@ -29,6 +29,7 @@ class Player():
         self.units = pygame.sprite.RenderClear()
         self.controllable = controllable
         self.mineral = initial_mineral
+        self.enemies = None
 
     def isControllable(self):
         return self.controllable
@@ -52,6 +53,7 @@ class Unit(pygame.sprite.Sprite):
     supply = 0
     
     selected = False
+    targetable = True
 
     def __init__(self, startx,starty):
         pygame.sprite.Sprite.__init__(self)
@@ -63,7 +65,7 @@ class Unit(pygame.sprite.Sprite):
         self.target_location = self.trueX, self.trueY 
 
 
-    def update(self): 
+    def update(self,players): 
             self.rect.centerx = round(self.trueX) 
             self.rect.centery = round(self.trueY)
             self.image.blit(self.image, self.rect)
@@ -75,7 +77,7 @@ class Worker(Unit):
     image_file = "worker.png"
     supply = 1
     
-    def update(self):        
+    def update(self, players):        
         if self.action == 0:# Stop
             pass
         elif self.action == 1: # Move
@@ -91,6 +93,12 @@ class Worker(Unit):
             self.rect.centerx = round(self.trueX) 
             self.rect.centery = round(self.trueY)
             self.image.blit(self.image, self.rect)
+            
+            for player in players:
+                for unit in player.units:
+                    if pygame.sprite.collide_rect( self, unit):
+                        if self != unit:
+                            self.action = 0   
     
     def move(self,target):
         self.action = 1
@@ -107,6 +115,10 @@ class Worker(Unit):
 
 class Command_Center(Unit):
         image_file = "command_center.png"
+        
+class Mineral(Unit):
+        image_file = "mineral.png"
+        targetable = False
 
 def main():
     pygame.init()
@@ -115,15 +127,19 @@ def main():
 
     #players
     players = [Player("Neutral"), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
+    players[1].enemies = 2
+    players[2].enemies = 1
     activePlayer = 1 # The player that is controlling the units
 
     # Initial Units
+    players[0].units.add(Mineral(300,100))
+    players[0].units.add(Command_Center(325,225))
     players[1].units.add(Command_Center(125,125))
     players[1].units.add(Worker(75,75))
     players[1].units.add(Worker(175,75))
     players[1].units.add(Worker(75,175))
     players[1].units.add(Worker(175,175))
-    players[2].units.add(Worker(250,50))  
+    players[2].units.add(Worker(450,50))  
     
     # Main Loop
     clock=pygame.time.Clock()
@@ -144,29 +160,35 @@ def main():
                         else:
                             unit.selected = False
                 if event.button == 2:    
-                    # Switch the "player" you handle. Deselect all units.
                     for unit in players[activePlayer].units: unit.selected = False
                     activePlayer = changePlayer(activePlayer, players)
                 if event.button == 3:
                     for unit in players[activePlayer].units:
                         if unit.selected == True:  
                             unit.move(event.pos)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_t:
+                    players[activePlayer].units.add(Worker(250,460))                  
         
         # Updates and Draws
         background_redraw(background, screen)
 
         for i, player in enumerate(players):
-            player.units.update()
+            player.units.update(players)
             player.units.draw( screen )
             if i == activePlayer :
                 color = 0,255,0
-            else:
+            elif i == players[activePlayer].enemies:
                 color = 255,0,0
+            else:
+                color = 255,255,0
             for unit in player.units:
-                pygame.draw.circle(screen,color,(unit.rect.topright),4)
+                if unit.targetable == True:
+                    pygame.draw.circle(screen,color,(unit.rect.topright),4)
                 if unit.selected == True:
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
-                
+        
+        
         font = pygame.font.Font(None, 25)
         text = font.render("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].getSupply())+"S", True,(255,255, 255))
         screen.blit(text, (480,0))
