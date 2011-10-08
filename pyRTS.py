@@ -134,25 +134,28 @@ class Worker(Unit):
         if self.action == actions.STOP:
             pass
         elif self.action == actions.MOVE:
-            dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
-            if dlength < self.speed:
-                self.trueX = self.target_location[0]
-                self.trueY = self.target_location[1]                
-                self.action = actions.STOP
-            else:
-                self.trueX += self.moveX
-                self.trueY += self.moveY
-            
+            future_rect = pygame.Rect(self.rect)
+            future_rect = future_rect.move(self.moveX,self.moveY)
             for player in players:
                 for unit in player.units:
-                    if pygame.sprite.collide_rect( self, unit):
+                    if future_rect.colliderect(unit.rect):            
                         if unit.id == u_id.MINERAL and self.with_mineral == False:
                             self.harvest(unit)
                         elif unit.id == u_id.CC and unit.owner == self.owner and self.with_mineral == True:
                             self.returnCargo(players[unit.owner]) 
                         elif self != unit:
-                            self.action = actions.STOP 
-            
+                            self.action = actions.STOP
+            if self.action == actions.MOVE:
+                dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
+                if dlength < self.speed:
+                    self.trueX = self.target_location[0]
+                    self.trueY = self.target_location[1]                
+                    self.action = actions.STOP
+                else:
+                    self.trueX += self.moveX
+                    self.trueY += self.moveY        
+        
+        
         elif self.action == actions.HARVEST:
             if self.harvest_progress <= 0:
                 self.changeImage(self.image_file2)
@@ -249,6 +252,11 @@ def main():
 
     # Initial Units
     players[0].units.add(Mineral(300,100,0))
+    players[0].units.add(Mineral(300,140,0))
+    players[0].units.add(Mineral(300,180,0))
+    players[0].units.add(Mineral(100,300,0))
+    players[0].units.add(Mineral(130,300,0))
+    players[0].units.add(Mineral(160,300,0))
     players[0].units.add(Mineral(600,100,0))
     players[0].units.add(Command_Center(425,525,0))
     players[1].units.add(Command_Center(125,125,1))
