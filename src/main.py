@@ -4,6 +4,9 @@ from units import *
 from player import Player
 import pygame, sys
 
+WINDOW_SIZE = width, height = 800, 600
+SELECTION_EXTRAX, SELECTION_EXTRAY = 20, 20
+
 def multiRender(lines, font, antialias, color, position, background):
     # RenderFont for multiple lines of text in a list.
     fontHeight = font.get_height()
@@ -12,7 +15,7 @@ def multiRender(lines, font, antialias, color, position, background):
         background.blit(text[i], (position[0],position[1]+(i*fontHeight)))
 
 def background_redraw(tiless, screen):
-    screen.fill((0,0,0))           
+    screen.fill((0,0,0))
     for ydrw in range((height/tiless.get_height())+1):
         for xdrw in range((width/tiless.get_width())+1):
             screen.blit(tiless,(xdrw*tiless.get_width(),ydrw*tiless.get_height()))
@@ -27,12 +30,13 @@ def changePlayer( active, players): # Temporal function for switch the player
         active = changePlayer(active,players)
 
     return active
-        
+
 def main():
+
     config = SafeConfigParser()
     config.read(data.filepath('config.ini'))
     fps = config.getfloat('configuration','fps')
-    
+
     pygame.init()
     screen = pygame.display.set_mode(WINDOW_SIZE) #make window
     background = pygame.image.load(data.filepath('background.png'))
@@ -63,16 +67,16 @@ def main():
     players[2].units.add(Worker(375,175,2))
     players[2].units.add(Worker(475,175,2))
 
-    
+
     # Main Loop
     clock=pygame.time.Clock()
-    while 1:         
+    while 1:
         clock.tick(fps)
-        
-        # events        
-        for event in pygame.event.get(): 
+
+        # events
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                sys.exit()            
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     for unit in players[activePlayer].units:
@@ -80,19 +84,19 @@ def main():
                             unit.selected = True
                         else:
                             unit.selected = False
-                if event.button == 2:    
+                if event.button == 2:
                     for unit in players[activePlayer].units: unit.selected = False
                     activePlayer = changePlayer(activePlayer, players)
                 if event.button == 3:
                     for unit in players[activePlayer].units:
-                        if unit.selected == True and unit.type == "unit":  
+                        if unit.selected == True and unit.type == "unit":
                             unit.move(event.pos)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
                     for unit in players[activePlayer].units:
-                        if unit.id == u_id.CC and unit.selected == True:
+                        if unit.id == Unit.ID_CC and unit.selected == True:
                             unit.train(players)
-        
+
         # Updates and Draws
         background_redraw(background, screen)
 
@@ -110,11 +114,11 @@ def main():
                     pygame.draw.circle(screen,color,(unit.rect.topright),4)
                 if unit.selected == True:
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
-                if unit.action == actions.BUILD:
+                if unit.action == Unit.ID_BUILD:
                     pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getBuildingProgress(),5))
-                if unit.action == actions.HARVEST:
+                if unit.action == Unit.ID_HARVEST:
                     pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getHarvestingProgress(),5))
-                    
+
         font = pygame.font.Font(None, 25)
         multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].getSupply())+"S"], font, True, (255,255,255),(480,0),screen)
         multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","T Key: Train Worker"], font, True, (255,255,255),(550,520),screen)
