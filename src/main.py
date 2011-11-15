@@ -42,7 +42,7 @@ def main():
     background = pygame.image.load(data.filepath('background.png'))
 
     #players
-    players = [Player("Neutral"), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
+    players = [Player("Neutral", True), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
     players[1].enemies = 2
     players[2].enemies = 1
     activePlayer = 1 # The player that is controlling the units
@@ -55,7 +55,7 @@ def main():
     players[0].units.add(Mineral(130,300,0))
     players[0].units.add(Mineral(160,300,0))
     players[0].units.add(Mineral(600,100,0))
-    players[0].units.add(Command_Center(425,525,0))
+    players[0].units.add(Command_Center(425,425,0))
     players[1].units.add(Command_Center(125,125,1))
     players[1].units.add(Worker(75,75,1))
     players[1].units.add(Worker(175,75,1))
@@ -110,11 +110,12 @@ def main():
             else:
                 color = 255,255,0
             for unit in player.units:
-                pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-8,unit.rect.width,3))
-                pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.top-8,unit.rect.width*unit.getLifeBar(),3))
+                pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-7,unit.rect.width,3))
+                pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
                 #if unit.targetable == True:
                 #    pygame.draw.circle(screen,color,(unit.rect.topright),4)
                 if unit.selected == True:
+                    multiRender([unit.name,"HP: "+str(unit.hp)+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: 0"], font, True, (255,255,255),(580,520),screen)
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
                 if unit.action == Unit.ID_BUILD:
                     pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getBuildingProgress(),5))
@@ -123,7 +124,7 @@ def main():
 
         font = pygame.font.Font(None, 25)
         multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].getSupply())+"S"], font, True, (255,255,255),(480,0),screen)
-        multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","T Key: Train Worker"], font, True, (255,255,255),(550,520),screen)
+        multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","T Key: Train Worker"], font, True, (255,255,255),(10,520),screen)
         pygame.display.flip() #update the screen
 
 if __name__ == '__main__': main()

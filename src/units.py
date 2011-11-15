@@ -37,8 +37,8 @@ class Unit(pygame.sprite.Sprite):
         self.action = self.ID_STOP
 
         # Unit Atributes
-        self.max_hp = 100.0
-        self.speed = 1.5
+        self.max_hp = 100
+        self.speed = 0
 
     def unit_init(self):
         pygame.sprite.Sprite.__init__(self)
@@ -69,7 +69,7 @@ class Unit(pygame.sprite.Sprite):
         else: return False
 
     def getLifeBar(self):
-        return ( (self.max_hp - (self.max_hp - self.hp)) / self.max_hp)
+        return  (self.max_hp - (self.max_hp - self.hp)) / float(self.max_hp)
 
 class Worker(Unit):
     supply = 1
@@ -82,8 +82,9 @@ class Worker(Unit):
         self.image_file2 = data.filepath("worker_with_mineral.png")
         self.id = self.ID_WORKER
         self.name = "Worker"
-        self.max_hp = 20.0
+        self.max_hp = 20
         self.type = "unit"
+        self.speed = 1.5
         self.harvest_amount = 10
         self.harvest_time = 100.0
         self.harvest_progress = 0
@@ -167,7 +168,7 @@ class Command_Center(Unit):
         self.id = self.ID_CC
         self.name = "Command_Center"
         self.type = "building"
-        self.hp = 250.0
+        self.hp = 250
 
         self.unit_init()
 
@@ -201,7 +202,7 @@ class Mineral(Unit):
         self.id = self.ID_MINERAL
         self.name = "Mineral"
         self.type = "resourse"
-        self.hp = 50.0
+        self.hp = 50
         self.targetable = False
 
         self.unit_init()
