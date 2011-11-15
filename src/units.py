@@ -37,21 +37,21 @@ class Unit(pygame.sprite.Sprite):
         self.action = self.ID_STOP
 
         # Unit Atributes
-        self.max_hp = 100
-        self.hp = self.max_hp
+        self.max_hp = 100.0
         self.speed = 1.5
 
-    def pygame_init(self):
+    def unit_init(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(self.image_file)
         self.rect = self.image.get_rect()
         self.rect.centerx = self.trueX
         self.rect.centery = self.trueY
+        self.hp = self.max_hp
 
     def update(self,players):
-            self.rect.centerx = round(self.trueX)
-            self.rect.centery = round(self.trueY)
-            self.image.blit(self.image, self.rect)
+        self.rect.centerx = round(self.trueX)
+        self.rect.centery = round(self.trueY)
+        self.image.blit(self.image, self.rect)
 
     def changeImage(self,image_file):
         self.image = pygame.image.load(image_file)
@@ -68,6 +68,9 @@ class Unit(pygame.sprite.Sprite):
             else: return False
         else: return False
 
+    def getLifeBar(self):
+        return ( (self.max_hp - (self.max_hp - self.hp)) / self.max_hp)
+
 class Worker(Unit):
     supply = 1
     cost = 50
@@ -79,7 +82,7 @@ class Worker(Unit):
         self.image_file2 = data.filepath("worker_with_mineral.png")
         self.id = self.ID_WORKER
         self.name = "Worker"
-        self.max_hp = 20
+        self.max_hp = 20.0
         self.type = "unit"
         self.harvest_amount = 10
         self.harvest_time = 100.0
@@ -87,7 +90,7 @@ class Worker(Unit):
         self.with_mineral = False
         self.mineral_target = None
 
-        self.pygame_init()
+        self.unit_init()
 
     def update(self, players):
         if self.action == self.ID_STOP:
@@ -145,7 +148,7 @@ class Worker(Unit):
         self.action = self.ID_HARVEST
 
     def getHarvestingProgress(self):
-        return ( (self.harvest_time - self.harvest_progress) / self.harvest_time)
+        return (self.harvest_time - self.harvest_progress) / self.harvest_time
 
     def returnCargo(self, player):
         player.mineral += self.harvest_amount
@@ -164,9 +167,9 @@ class Command_Center(Unit):
         self.id = self.ID_CC
         self.name = "Command_Center"
         self.type = "building"
-        self.hp = 250
+        self.hp = 250.0
 
-        self.pygame_init()
+        self.unit_init()
 
     def update(self, players):
         if self.action == self.ID_STOP:
@@ -198,10 +201,10 @@ class Mineral(Unit):
         self.id = self.ID_MINERAL
         self.name = "Mineral"
         self.type = "resourse"
-        self.hp = 50
+        self.hp = 50.0
         self.targetable = False
 
-        self.pygame_init()
+        self.unit_init()
 
     def update(self, players):
         if self.hp <= 0:

@@ -110,8 +110,10 @@ def main():
             else:
                 color = 255,255,0
             for unit in player.units:
-                if unit.targetable == True:
-                    pygame.draw.circle(screen,color,(unit.rect.topright),4)
+                pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-8,unit.rect.width,3))
+                pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.top-8,unit.rect.width*unit.getLifeBar(),3))
+                #if unit.targetable == True:
+                #    pygame.draw.circle(screen,color,(unit.rect.topright),4)
                 if unit.selected == True:
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
                 if unit.action == Unit.ID_BUILD:
