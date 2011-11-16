@@ -21,7 +21,6 @@ class BaseObject(pygame.sprite.Sprite):
         # Unit Tecnical Stuff
         self.trueX = float(startx)
         self.trueY = float(starty)
-        self.target_location = self.trueX, self.trueY
         self.moveX = 0.0
         self.moveY = 0.0
 
@@ -90,6 +89,7 @@ class Unit(BaseObject):
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
         self.type = self.ID_UNIT    
+        self.target_location = self.trueX, self.trueY
     
     def update(self, players):
         BaseObject.update(self,players)
@@ -128,8 +128,8 @@ class Unit(BaseObject):
         self.moveX = math.cos(radians) * self.speed # cosine * speed
         self.moveY = math.sin(radians) * self.speed # sine * speed
 
-    def attack(self,target):
-        pass    
+    def attack(self,target_unit):
+        self.move(target_unit.rect)
 
 class Hero(Unit):
     pass

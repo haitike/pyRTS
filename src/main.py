@@ -6,6 +6,8 @@ import pygame, sys
 
 WINDOW_SIZE = width, height = 800, 600
 SELECTION_EXTRAX, SELECTION_EXTRAY = 20, 20
+MOUSE_CURSOR1 = None
+MOUSE_CURSOR2 = (8, 8), (4,4), (24, 24, 24, 231, 231, 24, 24, 24), (0, 0, 0, 0, 0, 0, 0, 0)
 
 def multiRender(lines, font, antialias, color, position, background):
     # RenderFont for multiple lines of text in a list.
@@ -32,7 +34,7 @@ def changePlayer( active, players): # Temporal function for switch the player
     return active
 
 def main():
-
+    attack = False
     config = SafeConfigParser()
     config.read(data.filepath('config.ini'))
     fps = config.getfloat('configuration','fps')
@@ -40,6 +42,8 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode(WINDOW_SIZE) #make window
     background = pygame.image.load(data.filepath('background.png'))
+    MOUSE_CURSOR1 = pygame.mouse.get_cursor()
+    print MOUSE_CURSOR1
 
     #players
     players = [Player("Neutral", True), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
@@ -66,26 +70,45 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    for unit in players[activePlayer].units:
-                        if unit.isPressed(pygame.mouse.get_pos()):
-                            unit.selected = True
-                        else:
-                            unit.selected = False
-                if event.button == 2:
-                    for unit in players[activePlayer].units: unit.selected = False
-                    activePlayer = changePlayer(activePlayer, players)
-                if event.button == 3:
-                    for unit in players[activePlayer].units:
-                        if unit.selected == True and unit.type == unit.ID_UNIT:
-                            unit.move(event.pos)
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    for unit in players[activePlayer].units:
-                        if unit.type == "unit" and unit.selected == True:
-                            unit.attack(pygame.mouse.get_pos)
-
+                
+            if attack == False:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        for unit in players[activePlayer].units:
+                            if unit.isPressed(pygame.mouse.get_pos()):
+                                unit.selected = True
+                            else:
+                                unit.selected = False
+                    if event.button == 2:
+                        for unit in players[activePlayer].units: unit.selected = False
+                        activePlayer = changePlayer(activePlayer, players)
+                    if event.button == 3:
+                        for unit in players[activePlayer].units:
+                            if unit.selected == True and unit.type == unit.ID_UNIT:
+                                unit.move(event.pos)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_a:
+                        for unit in players[activePlayer].units:
+                            if unit.type == unit.ID_UNIT and unit.selected == True:
+                                pygame.mouse.set_cursor(*MOUSE_CURSOR2)
+                                attack = True
+            
+            else:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1 or 3:
+                        for unit in players[activePlayer].units:
+                            if unit.selected == True and unit.type == unit.ID_UNIT:
+                                for player in players:
+                                    for target in player.units:            
+                                        if target.isPressed(pygame.mouse.get_pos()) and target != unit:                               
+                                            unit.attack(target)
+                        pygame.mouse.set_cursor(*MOUSE_CURSOR1)
+                        attack = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.mouse.set_cursor(*MOUSE_CURSOR1)
+                        attack = False
+        
         # Updates and Draws
         background_redraw(background, screen)
 
@@ -107,7 +130,7 @@ def main():
 
         font = pygame.font.Font(None, 25)
         multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold"], font, True, (255,255,255),(520,0),screen)
-        multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","A: Attack"], font, True, (255,255,255),(10,500),screen)
+        multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","A: Attack", "ESC: Cancel Order"], font, True, (255,255,255),(10,500),screen)
         pygame.display.flip() #update the screen
 
 if __name__ == '__main__': main()
