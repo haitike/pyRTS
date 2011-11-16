@@ -48,25 +48,14 @@ def main():
     activePlayer = 1 # The player that is controlling the units
 
     # Initial Units
-    players[0].units.add(Mineral(300,100,0))
-    players[0].units.add(Mineral(300,140,0))
-    players[0].units.add(Mineral(300,180,0))
-    players[0].units.add(Mineral(100,300,0))
-    players[0].units.add(Mineral(140,300,0))
-    players[0].units.add(Mineral(180,300,0))
-    players[0].units.add(Mineral(600,100,0))
-    players[0].units.add(Command_Center(425,425,0))
-    players[1].units.add(Command_Center(125,125,1))
-    players[1].units.add(Worker(75,75,1))
-    players[1].units.add(Worker(175,75,1))
-    players[1].units.add(Worker(75,175,1))
-    players[1].units.add(Worker(175,175,1))
-    players[2].units.add(Command_Center(425,125,2))
-    players[2].units.add(Worker(375,75,2))
-    players[2].units.add(Worker(475,75,2))
-    players[2].units.add(Worker(375,175,2))
-    players[2].units.add(Worker(475,175,2))
-
+    players[0].units.add(Mineral(200,180,0))
+    players[0].units.add(Mineral(200,300,0))
+    players[0].units.add(Mineral(600,180,0))
+    players[0].units.add(Mineral(600,300,0))
+    players[1].units.add(Nexus(400,50,1))
+    players[1].units.add(Minion(400,100,1))
+    players[2].units.add(Nexus(400,550,2))
+    players[2].units.add(Minion(400,500,2))
 
     # Main Loop
     clock=pygame.time.Clock()
@@ -89,13 +78,9 @@ def main():
                     activePlayer = changePlayer(activePlayer, players)
                 if event.button == 3:
                     for unit in players[activePlayer].units:
-                        if unit.selected == True and unit.type == "unit":
+                        if unit.selected == True and unit.type == unit.ID_UNIT:
                             unit.move(event.pos)
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_t:
-                    for unit in players[activePlayer].units:
-                        if unit.id == Unit.ID_CC and unit.selected == True:
-                            unit.train(players)
                 if event.key == pygame.K_a:
                     for unit in players[activePlayer].units:
                         if unit.type == "unit" and unit.selected == True:
@@ -116,19 +101,13 @@ def main():
             for unit in player.units:
                 pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-7,unit.rect.width,3))
                 pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
-                #if unit.targetable == True:
-                #    pygame.draw.circle(screen,color,(unit.rect.topright),4)
                 if unit.selected == True:
                     multiRender([unit.name,"HP: "+str(unit.hp)+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage)], font, True, (255,255,255),(620,500),screen)
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
-                if unit.action == Unit.ID_BUILD:
-                    pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getBuildingProgress(),5))
-                if unit.action == Unit.ID_HARVEST:
-                    pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getHarvestingProgress(),5))
 
         font = pygame.font.Font(None, 25)
-        multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].getSupply())+"S"], font, True, (255,255,255),(480,0),screen)
-        multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","A: Atacar","T Key: Train Worker"], font, True, (255,255,255),(10,500),screen)
+        multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold"], font, True, (255,255,255),(520,0),screen)
+        multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","A: Attack"], font, True, (255,255,255),(10,500),screen)
         pygame.display.flip() #update the screen
 
 if __name__ == '__main__': main()
