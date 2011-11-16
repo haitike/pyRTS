@@ -119,7 +119,7 @@ def main():
                 #if unit.targetable == True:
                 #    pygame.draw.circle(screen,color,(unit.rect.topright),4)
                 if unit.selected == True:
-                    multiRender([unit.name,"HP: "+str(unit.hp)+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage)], font, True, (255,255,255),(580,520),screen)
+                    multiRender([unit.name,"HP: "+str(unit.hp)+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage)], font, True, (255,255,255),(620,500),screen)
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
                 if unit.action == Unit.ID_BUILD:
                     pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getBuildingProgress(),5))
@@ -128,7 +128,7 @@ def main():
 
         font = pygame.font.Font(None, 25)
         multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+"M  "+str(players[activePlayer].getSupply())+"S"], font, True, (255,255,255),(480,0),screen)
-        multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","A: Atacar","T Key: Train Worker"], font, True, (255,255,255),(10,520),screen)
+        multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","A: Atacar","T Key: Train Worker"], font, True, (255,255,255),(10,500),screen)
         pygame.display.flip() #update the screen
 
 if __name__ == '__main__': main()
