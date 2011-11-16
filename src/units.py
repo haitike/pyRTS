@@ -39,10 +39,12 @@ class Unit(pygame.sprite.Sprite):
         # Unit Atributes
         self.max_hp = 100
         self.speed = 0
+        self.damage = 0
 
     def unit_init(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(self.image_file)
+        self.base_image = pygame.image.load(self.image_file)
+        self.image = self.base_image
         self.rect = self.image.get_rect()
         self.rect.centerx = self.trueX
         self.rect.centery = self.trueY
@@ -54,6 +56,7 @@ class Unit(pygame.sprite.Sprite):
         self.image.blit(self.image, self.rect)
 
     def changeImage(self,image_file):
+        self.base_image = pygame.image.load(image_file)
         self.image = pygame.image.load(image_file)
         self.rect = self.image.get_rect()
 
@@ -85,6 +88,7 @@ class Worker(Unit):
         self.max_hp = 20
         self.type = "unit"
         self.speed = 1.5
+        self.damage = 4
         self.harvest_amount = 10
         self.harvest_time = 100.0
         self.harvest_progress = 0
@@ -131,6 +135,7 @@ class Worker(Unit):
         self.image.blit(self.image, self.rect)
 
     def move(self,target):
+        self.image = pygame.transform.rotate(self.image,180)
         self.action = self.ID_MOVE
         self.target_location = target
 
@@ -138,10 +143,14 @@ class Worker(Unit):
         dy = self.trueY - self.target_location[1]
 
         tan = math.atan2(dy,dx) # find angle
+        self.image = pygame.transform.rotate(self.base_image, math.degrees(tan*-1)+90)
         radians = math.radians(math.degrees(tan) + 180) # convert to radians
 
         self.moveX = math.cos(radians) * self.speed # cosine * speed
         self.moveY = math.sin(radians) * self.speed # sine * speed
+
+    def attack(self,target):
+        pass
 
     def harvest(self,mineral):
         self.harvest_progress = self.harvest_time
