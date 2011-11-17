@@ -3,7 +3,7 @@ from base_units import *
 class Minion(Unit):
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
-        self.image_file = data.filepath("worker.png")
+        self.image_file = data.filepath("minion.png")
         self.id = self.ID_WORKER
         self.name = "Worker"
         self.max_hp = 20

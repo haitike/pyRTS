@@ -100,7 +100,7 @@ def main():
                             if unit.selected == True and unit.type == unit.ID_UNIT:
                                 for player in players:
                                     for target in player.units:            
-                                        if target.isPressed(pygame.mouse.get_pos()) and target != unit:                               
+                                        if target.isPressed(pygame.mouse.get_pos()) and target != unit and target.targetable == True:                               
                                             unit.attack(target)
                         pygame.mouse.set_cursor(*MOUSE_CURSOR1)
                         attack = False
@@ -114,7 +114,9 @@ def main():
 
         for i, player in enumerate(players):
             player.units.update(players)
+            player.animations.update(players)
             player.units.draw( screen )
+            player.animations.draw( screen )
             if i == activePlayer :
                 color = 0,255,0
             elif i == players[activePlayer].enemies:

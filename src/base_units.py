@@ -1,11 +1,12 @@
 import math
 import pygame
 import data
+from animations import *
 
 class BaseObject(pygame.sprite.Sprite):
 
     # ACTIONS IDS
-    ID_STOP, ID_MOVE, ID_BUILD, ID_HARVEST = range(4)
+    ID_STOP, ID_MOVE, ID_ATTACK = range(3)
 
     # UNIT TYPE IDS
     ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF = range(3)
@@ -37,6 +38,7 @@ class BaseObject(pygame.sprite.Sprite):
         self.max_hp = 100
         self.speed = 0
         self.damage = 0
+        self.attack_speed = 1
 
     def unit_init(self):
         pygame.sprite.Sprite.__init__(self)
@@ -90,6 +92,8 @@ class Unit(BaseObject):
         BaseObject.__init__(self,startx,starty,owner)
         self.type = self.ID_UNIT    
         self.target_location = self.trueX, self.trueY
+        self.timer = 0
+        
     
     def update(self, players):
         BaseObject.update(self,players)
@@ -112,9 +116,13 @@ class Unit(BaseObject):
                             else:
                                 self.trueX += self.moveX
                                 self.trueY += self.moveY
-    
+        elif self.action == self.ID_ATTACK:
+            self.timer += self.attack_speed
+            if self.timer > 30:
+                players[self.owner].animations.add(MinionAttack(self.rect.centerx, self.rect.centery,self.damage, self))
+                self.timer = 0
+
     def move(self,target):
-        self.image = pygame.transform.rotate(self.image,180)
         self.action = self.ID_MOVE
         self.target_location = target
 
@@ -130,6 +138,7 @@ class Unit(BaseObject):
 
     def attack(self,target_unit):
         self.move(target_unit.rect)
+        self.action = self.ID_ATTACK
 
 class Hero(Unit):
     pass
