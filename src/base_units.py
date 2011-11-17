@@ -93,6 +93,7 @@ class Unit(BaseObject):
         self.type = self.ID_UNIT    
         self.target_location = self.trueX, self.trueY
         self.timer = 0
+        self.target_enemy = None
         
     
     def update(self, players):
@@ -119,7 +120,7 @@ class Unit(BaseObject):
         elif self.action == self.ID_ATTACK:
             self.timer += self.attack_speed
             if self.timer > 30:
-                players[self.owner].animations.add(MinionAttack(self.rect.centerx, self.rect.centery,self.damage, self))
+                players[self.owner].animations.add(MinionAttack(self.target_enemy.rect.centerx, self.target_enemy.rect.centery ,self.damage, self))
                 self.timer = 0
 
     def move(self,target):
@@ -137,6 +138,7 @@ class Unit(BaseObject):
         self.moveY = math.sin(radians) * self.speed # sine * speed
 
     def attack(self,target_unit):
+        self.target_enemy = target_unit
         self.move(target_unit.rect)
         self.action = self.ID_ATTACK
 

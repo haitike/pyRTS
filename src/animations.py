@@ -3,7 +3,7 @@ import data
 
 class Animation(pygame.sprite.Sprite):
     image_file = data.filepath("placeholder.png") 
-    duration = 30
+    duration = 15
     
     def __init__(self,x, y):
         pygame.sprite.Sprite.__init__(self)

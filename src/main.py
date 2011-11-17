@@ -43,7 +43,6 @@ def main():
     screen = pygame.display.set_mode(WINDOW_SIZE) #make window
     background = pygame.image.load(data.filepath('background.png'))
     MOUSE_CURSOR1 = pygame.mouse.get_cursor()
-    print MOUSE_CURSOR1
 
     #players
     players = [Player("Neutral", True), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
@@ -114,8 +113,9 @@ def main():
 
         for i, player in enumerate(players):
             player.units.update(players)
-            player.animations.update(players)
             player.units.draw( screen )
+        for i, player in enumerate(players):
+            player.animations.update(players)
             player.animations.draw( screen )
             if i == activePlayer :
                 color = 0,255,0
