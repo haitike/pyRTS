@@ -1,6 +1,7 @@
 import math
 import pygame
 import data
+import vector
 from animations import *
 
 class BaseObject(pygame.sprite.Sprite):
@@ -9,7 +10,7 @@ class BaseObject(pygame.sprite.Sprite):
     ID_STOP, ID_MOVE, ID_ATTACK = range(3)
 
     # UNIT TYPE IDS
-    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF = range(3)
+    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF, ID_CHASING = range(4)
 
     # UNIT IDS
     ID_MINERAL = 0
@@ -90,12 +91,12 @@ class Building(BaseObject):
 class Unit(BaseObject):
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
+        self.AttackAnimation = MinionAttack
         self.type = self.ID_UNIT    
         self.target_location = self.trueX, self.trueY
         self.timer = 0
         self.target_enemy = None
         
-    
     def update(self, players):
         BaseObject.update(self,players)
         
@@ -118,10 +119,14 @@ class Unit(BaseObject):
                                 self.trueX += self.moveX
                                 self.trueY += self.moveY
         elif self.action == self.ID_ATTACK:
+            if self.target_enemy.alive() == False:
+                self.action = self.ID_STOP 
             self.timer += self.attack_speed
             if self.timer > 30:
-                players[self.owner].animations.add(MinionAttack(self.target_enemy.rect.centerx, self.target_enemy.rect.centery ,self.damage, self))
+                players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage ))
                 self.timer = 0
+        elif self.action == self.ID_CHASING:     
+            pass
 
     def move(self,target):
         self.action = self.ID_MOVE

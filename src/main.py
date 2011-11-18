@@ -45,7 +45,7 @@ def main():
     MOUSE_CURSOR1 = pygame.mouse.get_cursor()
 
     #players
-    players = [Player("Neutral", True), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
+    players = [Player("Neutral"), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
     players[1].enemies = 2
     players[2].enemies = 1
     activePlayer = 1 # The player that is controlling the units
@@ -115,7 +115,7 @@ def main():
             player.units.update(players)
             player.units.draw( screen )
         for i, player in enumerate(players):
-            player.animations.update(players)
+            player.animations.update()
             player.animations.draw( screen )
             if i == activePlayer :
                 color = 0,255,0
