@@ -44,6 +44,15 @@ class Attack(Animation):
             self.kill()
         self.image.blit(self.image, self.rect)
         
+
+        # Path Calculation
+        dx = self.rect.centerx - self.target_unit.rect.centerx
+        dy = self.rect.centery - self.target_unit.rect.centery
+        tan = math.atan2(dy,dx)
+        radians = math.radians(math.degrees(tan) + 180)
+        self.moveX = math.cos(radians) * self.speed
+        self.moveY = math.sin(radians) * self.speed
+        
         self.rect.centerx += self.moveX
         self.rect.centery += self.moveY        
 
@@ -61,4 +70,8 @@ class Attack(Animation):
 class MinionAttack(Attack):
     image_file = data.filepath("minion_attack.png") 
     speed = 2
-    duration = 10
+    
+class RangedMinionAttack(Attack):
+    image_file = data.filepath("bullet.png") 
+    speed = 20
+    duration = 1

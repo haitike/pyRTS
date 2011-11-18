@@ -56,9 +56,11 @@ def main():
     players[0].units.add(Mineral(600,180,0))
     players[0].units.add(Mineral(600,300,0))
     players[1].units.add(Nexus(400,50,1))
-    players[1].units.add(Minion(400,100,1))
+    players[1].units.add(Minion(300,100,1))
+    players[1].units.add(RangedMinion(500,100,1))
     players[2].units.add(Nexus(400,550,2))
-    players[2].units.add(Minion(400,500,2))
+    players[2].units.add(Minion(300,500,2))
+    players[2].units.add(RangedMinion(500,500,2))
 
     # Main Loop
     clock=pygame.time.Clock()

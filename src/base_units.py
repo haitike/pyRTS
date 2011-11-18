@@ -1,7 +1,6 @@
 import math
 import pygame
 import data
-import vector
 from animations import *
 
 class BaseObject(pygame.sprite.Sprite):
@@ -15,8 +14,9 @@ class BaseObject(pygame.sprite.Sprite):
     # UNIT IDS
     ID_MINERAL = 0
     ID_CC = 20
-    ID_WORKER = 50
-
+    ID_MINION = 50
+    ID_RANGEDMINION = 51
+    
     def __init__(self, startx,starty,owner=0):
         self.image_file = data.filepath("placeholder.png")
 
