@@ -46,8 +46,8 @@ def main():
 
     #players
     players = [Player("Neutral"), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
-    players[1].enemies = 2
-    players[2].enemies = 1
+    players[1].enemies = [2]
+    players[2].enemies = [1]
     activePlayer = 1 # The player that is controlling the units
 
     # Initial Units
@@ -87,6 +87,11 @@ def main():
                         for unit in players[activePlayer].units:
                             if unit.selected == True and unit.type == unit.ID_UNIT:
                                 unit.move(event.pos)
+                                for player in players:
+                                    for target in player.units:            
+                                        if target.isPressed(pygame.mouse.get_pos()) and target.owner in players[unit.owner].enemies and target != unit and target.targetable == True:                               
+                                            unit.attack(target)
+                
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
                         for unit in players[activePlayer].units:
@@ -118,23 +123,24 @@ def main():
             player.units.draw( screen )
         for i, player in enumerate(players):
             player.animations.update()
-            player.animations.draw( screen )
+            player.animations.draw( screen )      
             if i == activePlayer :
                 color = 0,255,0
-            elif i == players[activePlayer].enemies:
+            elif i in players[activePlayer].enemies:
                 color = 255,0,0
             else:
                 color = 255,255,0
             for unit in player.units:
-                pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-7,unit.rect.width,3))
-                pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
+                if unit.targetable == True:
+                    pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-7,unit.rect.width,3))
+                    pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
                 if unit.selected == True:
-                    multiRender([unit.name,"HP: "+str(unit.hp)+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage)], font, True, (255,255,255),(620,500),screen)
+                    multiRender([unit.name,"HP: "+str(int(unit.hp))+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage), "Armor: "+str(unit.armor*100)+"%"], font, True, (255,255,255),(620,480),screen)
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
 
         font = pygame.font.Font(None, 25)
         multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold"], font, True, (255,255,255),(520,0),screen)
-        multiRender(["RightMouse: Move/Harvest","MiddleMouse: Switch Player","A: Attack", "ESC: Cancel Order"], font, True, (255,255,255),(10,500),screen)
+        multiRender(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "ESC: Cancel Order"], font, True, (255,255,255),(10,500),screen)
         pygame.display.flip() #update the screen
 
 if __name__ == '__main__': main()

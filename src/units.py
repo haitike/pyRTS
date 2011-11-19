@@ -9,6 +9,7 @@ class Minion(Unit):
         self.max_hp = 20
         self.speed = 3.5
         self.damage = 5
+        self.range = 20
 
         self.unit_init()
         
@@ -22,6 +23,7 @@ class RangedMinion(Unit):
         self.max_hp = 20
         self.speed = 3
         self.damage = 3
+        self.range = 150
 
         self.unit_init()
 
@@ -33,6 +35,7 @@ class Nexus(Building):
         self.id = self.ID_CC
         self.name = "Nexus"
         self.hp = 250
+        self.armor = 0.2
 
         self.unit_init()
 

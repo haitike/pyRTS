@@ -39,6 +39,8 @@ class BaseObject(pygame.sprite.Sprite):
         self.max_hp = 100
         self.speed = 0
         self.damage = 0
+        self.range = 100
+        self.armor = 0
         self.attack_speed = 1
 
     def unit_init(self):
@@ -98,35 +100,37 @@ class Unit(BaseObject):
         self.target_enemy = None
         
     def update(self, players):
-        BaseObject.update(self,players)
-        
+        BaseObject.update(self,players)        
         if self.action == self.ID_STOP:
             self.moveX = 0
             self.moveY = 0
         elif self.action == self.ID_MOVE:
-            for player in players:
-                for unit in player.units:
-                    if pygame.sprite.collide_rect(self, unit):
-                        if self != unit:
-                            self.action = self.ID_STOP
-                        else:
-                            dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
-                            if dlength < self.speed:
-                                self.trueX = self.target_location[0]
-                                self.trueY = self.target_location[1]
-                                self.action = self.ID_STOP
-                            else:
-                                self.trueX += self.moveX
-                                self.trueY += self.moveY
+            self.update_move(players)        
         elif self.action == self.ID_ATTACK:
             if self.target_enemy.alive() == False:
                 self.action = self.ID_STOP 
             self.timer += self.attack_speed
             if self.timer > 30:
-                players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage ))
+                players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
                 self.timer = 0
         elif self.action == self.ID_CHASING:     
             pass
+            
+    def update_move(self,players):
+        for player in players:
+            for unit in player.units:
+                if pygame.sprite.collide_rect(self, unit):
+                    if self != unit:
+                        self.action = self.ID_STOP
+                    else:
+                        dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
+                        if dlength < self.speed:
+                            self.trueX = self.target_location[0]
+                            self.trueY = self.target_location[1]
+                            self.action = self.ID_STOP
+                        else:
+                            self.trueX += self.moveX
+                            self.trueY += self.moveY
 
     def move(self,target):
         self.action = self.ID_MOVE
