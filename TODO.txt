@@ -3,10 +3,11 @@ Fix the bug when you move a unit to "Top-Left Corner" the sprite decolours.
 Assign each player a RGB color in the class and draw it
 Load Image function using "os.path", etc, with the folder "data", try, etc. (A sound function too)
 Draw the top text (player active) in the player RGB color.
-Building class? Building boolean? Dont command to move to buildings, etc.
 Collision and no unit pass trhought.
 You can select units from all players, enemies or not
-Better colision calculations, no more "stack" in the side of the other sprites.
-Train improved. Create unit in the empty slots around the building. 
-Training Unit: When create a unit, check that the unit owner is the same that the command center owner.
 Scroll!
+Vision Fog
+Attack: Calcule range distances to enemy sides, not to center (useful for big targets)
+4 facing angles (full angle slows the game)
+Angle variable in classes
+dont "move" in the ID_Attack State when the unit is chasing (temporal fix for the facing angle).

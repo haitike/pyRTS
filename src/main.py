@@ -71,7 +71,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-                
+
             if attack == False:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
@@ -88,25 +88,25 @@ def main():
                             if unit.selected == True and unit.type == unit.ID_UNIT:
                                 unit.move(event.pos)
                                 for player in players:
-                                    for target in player.units:            
-                                        if target.isPressed(pygame.mouse.get_pos()) and target.owner in players[unit.owner].enemies and target != unit and target.targetable == True:                               
+                                    for target in player.units:
+                                        if target.isPressed(pygame.mouse.get_pos()) and target.owner in players[unit.owner].enemies and target != unit and target.targetable == True:
                                             unit.attack(target)
-                
+
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
                         for unit in players[activePlayer].units:
                             if unit.type == unit.ID_UNIT and unit.selected == True:
                                 pygame.mouse.set_cursor(*MOUSE_CURSOR2)
                                 attack = True
-            
+
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1 or 3:
                         for unit in players[activePlayer].units:
                             if unit.selected == True and unit.type == unit.ID_UNIT:
                                 for player in players:
-                                    for target in player.units:            
-                                        if target.isPressed(pygame.mouse.get_pos()) and target != unit and target.targetable == True:                               
+                                    for target in player.units:
+                                        if target.isPressed(pygame.mouse.get_pos()) and target != unit and target.targetable == True:
                                             unit.attack(target)
                         pygame.mouse.set_cursor(*MOUSE_CURSOR1)
                         attack = False
@@ -114,7 +114,7 @@ def main():
                     if event.key == pygame.K_ESCAPE:
                         pygame.mouse.set_cursor(*MOUSE_CURSOR1)
                         attack = False
-        
+
         # Updates and Draws
         background_redraw(background, screen)
 
@@ -123,7 +123,7 @@ def main():
             player.units.draw( screen )
         for i, player in enumerate(players):
             player.animations.update()
-            player.animations.draw( screen )      
+            player.animations.draw( screen )
             if i == activePlayer :
                 color = 0,255,0
             elif i in players[activePlayer].enemies:

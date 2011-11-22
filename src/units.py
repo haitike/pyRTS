@@ -9,10 +9,10 @@ class Minion(Unit):
         self.max_hp = 20
         self.speed = 3.5
         self.damage = 5
-        self.range = 20
+        self.range = 45
 
         self.unit_init()
-        
+
 class RangedMinion(Unit):
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)

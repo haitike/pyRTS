@@ -9,14 +9,14 @@ class BaseObject(pygame.sprite.Sprite):
     ID_STOP, ID_MOVE, ID_ATTACK = range(3)
 
     # UNIT TYPE IDS
-    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF, ID_CHASING = range(4)
+    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF = range(3)
 
     # UNIT IDS
     ID_MINERAL = 0
     ID_CC = 20
     ID_MINION = 50
     ID_RANGEDMINION = 51
-    
+
     def __init__(self, startx,starty,owner=0):
         self.image_file = data.filepath("placeholder.png")
 
@@ -56,7 +56,7 @@ class BaseObject(pygame.sprite.Sprite):
         self.rect.centerx = round(self.trueX)
         self.rect.centery = round(self.trueY)
         self.image.blit(self.image, self.rect)
-        
+
         if self.hp <= 0:
             self.kill()
 
@@ -94,28 +94,33 @@ class Unit(BaseObject):
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
         self.AttackAnimation = MinionAttack
-        self.type = self.ID_UNIT    
+        self.type = self.ID_UNIT
         self.target_location = self.trueX, self.trueY
         self.timer = 0
         self.target_enemy = None
-        
+
     def update(self, players):
-        BaseObject.update(self,players)        
+        BaseObject.update(self,players)
         if self.action == self.ID_STOP:
             self.moveX = 0
             self.moveY = 0
+            self.target_location = self.trueX, self.trueY
+            self.target_enemy = None
         elif self.action == self.ID_MOVE:
-            self.update_move(players)        
+            self.update_move(players)
         elif self.action == self.ID_ATTACK:
-            if self.target_enemy.alive() == False:
-                self.action = self.ID_STOP 
             self.timer += self.attack_speed
-            if self.timer > 30:
-                players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
-                self.timer = 0
-        elif self.action == self.ID_CHASING:     
-            pass
-            
+            if self.getEnemyDistance() < self.range:
+                self.move(self.target_enemy.rect, self.ID_ATTACK)
+                if self.timer > 30:
+                    players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
+                    self.timer = 0
+            else:
+                self.move(self.target_enemy.rect, self.ID_ATTACK)
+                self.update_move(players)
+            if self.target_enemy.alive() == False:
+                self.action = self.ID_STOP
+
     def update_move(self,players):
         for player in players:
             for unit in player.units:
@@ -132,8 +137,8 @@ class Unit(BaseObject):
                             self.trueX += self.moveX
                             self.trueY += self.moveY
 
-    def move(self,target):
-        self.action = self.ID_MOVE
+    def move(self,target, act_type=1): # 1 = Move
+        self.action = act_type
         self.target_location = target
 
         dx = self.trueX - self.target_location[0]
@@ -148,8 +153,11 @@ class Unit(BaseObject):
 
     def attack(self,target_unit):
         self.target_enemy = target_unit
-        self.move(target_unit.rect)
         self.action = self.ID_ATTACK
+
+    def getEnemyDistance(self):
+        if self.target_enemy != None: return math.sqrt((self.trueX - self.target_enemy.trueX) **2 + (self.trueY - self.target_enemy.trueY)**2)
+        else: return None
 
 class Hero(Unit):
     pass
