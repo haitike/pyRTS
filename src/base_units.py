@@ -102,7 +102,6 @@ class Unit(BaseObject):
     def update(self, players):
         BaseObject.update(self,players)
         if self.timer <= 30: self.timer += self.attack_speed
-        print self.timer
         if self.action == self.ID_STOP:
             self.moveX = 0
             self.moveY = 0
