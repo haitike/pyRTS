@@ -96,11 +96,13 @@ class Unit(BaseObject):
         self.AttackAnimation = MinionAttack
         self.type = self.ID_UNIT
         self.target_location = self.trueX, self.trueY
-        self.timer = 0
+        self.timer = 30
         self.target_enemy = None
 
     def update(self, players):
         BaseObject.update(self,players)
+        if self.timer <= 30: self.timer += self.attack_speed
+        print self.timer
         if self.action == self.ID_STOP:
             self.moveX = 0
             self.moveY = 0
@@ -109,7 +111,6 @@ class Unit(BaseObject):
         elif self.action == self.ID_MOVE:
             self.update_move(players)
         elif self.action == self.ID_ATTACK:
-            self.timer += self.attack_speed
             if self.getEnemyDistance() < self.range:
                 self.move(self.target_enemy.rect, self.ID_ATTACK)
                 if self.timer > 30:
