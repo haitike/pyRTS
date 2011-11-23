@@ -45,9 +45,11 @@ def main():
     MOUSE_CURSOR1 = pygame.mouse.get_cursor()
 
     #players
-    players = [Player("Neutral"), Player("Good Guys", True, 50), Player("The Evil", True, 50)]
-    players[1].enemies = [2]
-    players[2].enemies = [1]
+    players = [Player("Neutral"), Player("Good Guys", True, 50), Player("The Evil", True, 50), Player("Good Minions",True), Player("Bad Minions",True)]
+    players[1].enemies = [2,4]
+    players[2].enemies = [1,3]
+    players[3].enemies = [2,4]
+    players[4].enemies = [1,3]
     activePlayer = 1 # The player that is controlling the units
 
     # Initial Units
@@ -55,12 +57,12 @@ def main():
     players[0].units.add(Mineral(200,300,0))
     players[0].units.add(Mineral(600,180,0))
     players[0].units.add(Mineral(600,300,0))
-    players[1].units.add(Nexus(400,50,1))
     players[1].units.add(Minion(300,100,1))
     players[1].units.add(RangedMinion(500,100,1))
-    players[2].units.add(Nexus(400,550,2))
     players[2].units.add(Minion(300,500,2))
     players[2].units.add(RangedMinion(500,500,2))
+    players[3].units.add(Nexus(400,50,3,(400,100),(400,600)))
+    players[4].units.add(Nexus(400,550,4,(400,500),(400,0)))
 
     # Main Loop
     clock=pygame.time.Clock()

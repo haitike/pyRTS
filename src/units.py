@@ -7,7 +7,7 @@ class Minion(Unit):
         self.id = self.ID_MINION
         self.name = "Minion"
         self.max_hp = 20
-        self.speed = 13.5
+        self.speed = 3.5
         self.damage = 5
         self.range = 45
 
@@ -29,14 +29,15 @@ class RangedMinion(Unit):
         self.unit_init()
 
 class Nexus(Building):
-    def __init__(self, startx,starty,owner):
-        Building.__init__(self,startx,starty,owner)
+    def __init__(self, startx,starty,owner,creation_point,target_point):
+        Building.__init__(self,startx,starty,owner,creation_point,target_point)
 
         self.image_file =  data.filepath("nexus.png")
         self.id = self.ID_CC
         self.name = "Nexus"
         self.hp = 250
         self.armor = 0.2
+        self.unit_trained = Minion
 
         self.unit_init()
 

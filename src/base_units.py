@@ -87,9 +87,23 @@ class NeutralStuff(BaseObject):
         self.targetable = False
 
 class Building(BaseObject):
-    def __init__(self, startx,starty,owner=0):
+    def __init__(self, startx,starty,owner,creation_point,target_point):
         BaseObject.__init__(self,startx,starty,owner)
         self.type = self.ID_BUILDING
+        self.build_timer = 0
+        self.build_speed = 1
+        self.unit_trained = None
+        self.creation_point = creation_point
+        self.target_point = target_point
+
+    def update(self,players):
+        BaseObject.update(self,players)
+        self.build_timer += self.build_speed
+        if self.build_timer > 200:
+            newUnit = self.unit_trained(self.creation_point[0],self.creation_point[1],self.owner)
+            players[self.owner].units.add(newUnit)
+            newUnit.attack_move(self.target_point)
+            self.build_timer = 0
 
 class Unit(BaseObject):
     def __init__(self, startx,starty,owner=0):
@@ -97,12 +111,12 @@ class Unit(BaseObject):
         self.AttackAnimation = MinionAttack
         self.type = self.ID_UNIT
         self.target_location = self.trueX, self.trueY
-        self.timer = 30
+        self.attack_timer = 30
         self.target_enemy = None
 
     def update(self, players):
         BaseObject.update(self,players)
-        if self.timer <= 30: self.timer += self.attack_speed
+        if self.attack_timer <= 30: self.attack_timer += self.attack_speed
         if self.action == self.ID_STOP:
             self.moveX = 0
             self.moveY = 0
@@ -138,9 +152,9 @@ class Unit(BaseObject):
     def update_attack(self,players):
         if self.getEnemyDistance(self.target_enemy) < self.range:
             self.move(self.target_enemy.rect, self.ID_ATTACK)
-            if self.timer > 30:
+            if self.attack_timer > 30:
                 players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
-                self.timer = 0
+                self.attack_timer = 0
         else:
             self.move(self.target_enemy.rect, self.ID_ATTACK)
             self.update_move(players)
