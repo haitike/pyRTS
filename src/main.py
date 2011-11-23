@@ -101,15 +101,19 @@ def main():
 
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1 or 3:
+                    if event.button == 1:
+                        unit_in_cursor = False
                         for unit in players[activePlayer].units:
                             if unit.selected == True and unit.type == unit.ID_UNIT:
                                 for player in players:
                                     for target in player.units:
                                         if target.isPressed(pygame.mouse.get_pos()) and target != unit and target.targetable == True:
                                             unit.attack(target)
-                        pygame.mouse.set_cursor(*MOUSE_CURSOR1)
-                        attack = False
+                                            unit_in_cursor = True
+                                if unit_in_cursor == False:
+                                    unit.attack_move(event.pos)
+                    pygame.mouse.set_cursor(*MOUSE_CURSOR1)
+                    attack = False
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         pygame.mouse.set_cursor(*MOUSE_CURSOR1)
@@ -135,7 +139,7 @@ def main():
                     pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-7,unit.rect.width,3))
                     pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
                 if unit.selected == True:
-                    multiRender([unit.name,"HP: "+str(int(unit.hp))+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage), "Armor: "+str(unit.armor*100)+"%"], font, True, (255,255,255),(620,480),screen)
+                    multiRender([unit.name,"HP: "+str(int(unit.hp))+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage), "Armor: "+str(unit.armor*100)+"%", "Attack Speed: "+str(unit.attack_speed)], font, True, (255,255,255),(620,480),screen)
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
 
         font = pygame.font.Font(None, 25)

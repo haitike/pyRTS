@@ -7,7 +7,7 @@ class Minion(Unit):
         self.id = self.ID_MINION
         self.name = "Minion"
         self.max_hp = 20
-        self.speed = 3.5
+        self.speed = 13.5
         self.damage = 5
         self.range = 45
 
@@ -20,10 +20,11 @@ class RangedMinion(Unit):
         self.id = self.ID_RANGEDMINION
         self.name = "Ranged Minion"
         self.AttackAnimation = RangedMinionAttack
-        self.max_hp = 20
+        self.max_hp = 16
         self.speed = 3
         self.damage = 3
         self.range = 150
+        self.attack_speed = 1.2
 
         self.unit_init()
 

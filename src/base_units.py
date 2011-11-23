@@ -9,7 +9,7 @@ class BaseObject(pygame.sprite.Sprite):
     ID_STOP, ID_MOVE, ID_ATTACK = range(3)
 
     # UNIT TYPE IDS
-    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF = range(3)
+    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF, ID_ATTACK_MOVE = range(4)
 
     # UNIT IDS
     ID_MINERAL = 0
@@ -42,6 +42,7 @@ class BaseObject(pygame.sprite.Sprite):
         self.range = 100
         self.armor = 0
         self.attack_speed = 1
+        self.vision = 150
 
     def unit_init(self):
         pygame.sprite.Sprite.__init__(self)
@@ -110,16 +111,13 @@ class Unit(BaseObject):
         elif self.action == self.ID_MOVE:
             self.update_move(players)
         elif self.action == self.ID_ATTACK:
-            if self.getEnemyDistance() < self.range:
-                self.move(self.target_enemy.rect, self.ID_ATTACK)
-                if self.timer > 30:
-                    players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
-                    self.timer = 0
-            else:
-                self.move(self.target_enemy.rect, self.ID_ATTACK)
+            self.update_attack(players)
+        elif self.action == self.ID_ATTACK_MOVE:
+            self.target_enemy = self.getNewEnemy(players)
+            if self.target_enemy == None:
                 self.update_move(players)
-            if self.target_enemy.alive() == False:
-                self.action = self.ID_STOP
+            else:
+                self.update_attack(players)
 
     def update_move(self,players):
         for player in players:
@@ -136,6 +134,18 @@ class Unit(BaseObject):
                         else:
                             self.trueX += self.moveX
                             self.trueY += self.moveY
+
+    def update_attack(self,players):
+        if self.getEnemyDistance(self.target_enemy) < self.range:
+            self.move(self.target_enemy.rect, self.ID_ATTACK)
+            if self.timer > 30:
+                players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
+                self.timer = 0
+        else:
+            self.move(self.target_enemy.rect, self.ID_ATTACK)
+            self.update_move(players)
+        if self.target_enemy.alive() == False:
+            self.action = self.ID_STOP
 
     def move(self,target, act_type=1): # 1 = Move
         self.action = act_type
@@ -155,9 +165,28 @@ class Unit(BaseObject):
         self.target_enemy = target_unit
         self.action = self.ID_ATTACK
 
-    def getEnemyDistance(self):
-        if self.target_enemy != None: return math.sqrt((self.trueX - self.target_enemy.trueX) **2 + (self.trueY - self.target_enemy.trueY)**2)
+    def attack_move(self, target):
+        self.target_location = target
+        self.move(target,3)
+        self.action = self.ID_ATTACK_MOVE
+
+    def getEnemyDistance(self, enemy):
+        if enemy != None: return math.sqrt((self.trueX - enemy.trueX) **2 + (self.trueY - enemy.trueY)**2)
         else: return None
+
+    def getNewEnemy(self,players):
+        units_in_range = []
+        for index in range(len(players)):
+            if index in players[self.owner].enemies:
+                for target in players[index].units:
+                    if target != self and target.targetable == True:
+                        if self.getEnemyDistance(target) < self.vision:
+                            units_in_range.append((self.getEnemyDistance(target),target))
+        if units_in_range == []:
+            return None
+        else:
+            return sorted(units_in_range)[0][1]
+
 
 class Hero(Unit):
     pass
