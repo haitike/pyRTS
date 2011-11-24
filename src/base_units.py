@@ -113,6 +113,7 @@ class Unit(BaseObject):
         self.target_location = self.trueX, self.trueY
         self.attack_timer = 30
         self.target_enemy = None
+        self.attack_move_location = self.trueX, self.trueY
 
     def update(self, players):
         BaseObject.update(self,players)
@@ -121,6 +122,7 @@ class Unit(BaseObject):
             self.moveX = 0
             self.moveY = 0
             self.target_location = self.trueX, self.trueY
+            self.attack_move_location = self.trueX, self.trueY
             self.target_enemy = None
         elif self.action == self.ID_MOVE:
             self.update_move(players)
@@ -151,15 +153,16 @@ class Unit(BaseObject):
 
     def update_attack(self,players):
         if self.getEnemyDistance(self.target_enemy) < self.range:
-            self.move(self.target_enemy.rect, self.ID_ATTACK)
+            self.move(self.target_enemy.rect, self.action)
             if self.attack_timer > 30:
                 players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
                 self.attack_timer = 0
         else:
-            self.move(self.target_enemy.rect, self.ID_ATTACK)
+            self.move(self.target_enemy.rect, self.action)
             self.update_move(players)
         if self.target_enemy.alive() == False:
-            self.action = self.ID_STOP
+            if self.action == self.ID_ATTACK_MOVE: self.target_location = self.attack_move_location
+            else: self.action = self.ID_STOP
 
     def move(self,target, act_type=1): # 1 = Move
         self.action = act_type
@@ -180,6 +183,7 @@ class Unit(BaseObject):
         self.action = self.ID_ATTACK
 
     def attack_move(self, target):
+        self.attack_move_location = target
         self.target_location = target
         self.move(target,3)
         self.action = self.ID_ATTACK_MOVE

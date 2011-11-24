@@ -7,7 +7,7 @@ class Minion(Unit):
         self.id = self.ID_MINION
         self.name = "Minion"
         self.max_hp = 20
-        self.speed = 3.5
+        self.speed = 2.5
         self.damage = 5
         self.range = 45
 
@@ -21,12 +21,16 @@ class RangedMinion(Unit):
         self.name = "Ranged Minion"
         self.AttackAnimation = RangedMinionAttack
         self.max_hp = 16
-        self.speed = 3
+        self.speed = 2
         self.damage = 3
         self.range = 150
         self.attack_speed = 1.2
 
         self.unit_init()
+
+    def update(self, players):
+        Unit.update(self,players)
+        print self.attack_move_location, self.action
 
 class Nexus(Building):
     def __init__(self, startx,starty,owner,creation_point,target_point):
