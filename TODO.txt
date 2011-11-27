@@ -11,5 +11,6 @@ Attack: Calcule range distances to enemy sides, not to center (useful for big ta
 4 facing angles (full angle slows the game)
 Angle variable in classes
 dont "move" in the ID_Attack State when the unit is chasing (temporal fix for the facing angle).
-Attack Move: Continue moving to the point after kill the units in range.
+Attack Move: Continue moving to the point after kill all the units in range.
 Attack Move: Continue moving to the point is the unit you are chasing go out of range
+Move BackGround Image when scrolling

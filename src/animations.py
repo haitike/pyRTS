@@ -1,9 +1,9 @@
 import pygame
-import data
+import tools, game_data
 import math
 
 class Animation(pygame.sprite.Sprite):
-    image_file = data.filepath("placeholder.png")
+    image_file = tools.filepath("placeholder.png")
     duration = 10
 
     def __init__(self,x, y):
@@ -13,11 +13,13 @@ class Animation(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.trueX = float(x)
         self.trueY = float(y)
+        self.rect.centerx = round(self.trueX + game_data.camera[0])
+        self.rect.centery = round(self.trueY + game_data.camera[1])
         self.timer = 0
 
     def update(self):
-        self.rect.centerx = round(self.trueX)
-        self.rect.centery = round(self.trueY)
+        self.rect.centerx = round(self.trueX + game_data.camera[0])
+        self.rect.centery = round(self.trueY + game_data.camera[1])
         self.image.blit(self.image, self.rect)
         self.timer += 1
 
@@ -56,8 +58,8 @@ class Attack(Animation):
             if self.timer > (self.duration - 2):
                 self.image = pygame.font.Font(None, 25).render(str(int(self.hit)), True, (255,255,255))
                 self.rect = self.image.get_rect()
-                self.rect.centerx = round(self.trueX)
-                self.rect.centery = round(self.trueY)
+                self.rect.centerx = round(self.trueX + game_data.camera[0])
+                self.rect.centery = round(self.trueY + game_data.camera[1])
                 self.damage_status = 2
                 self.timer = self.duration - 15
 
@@ -68,11 +70,11 @@ class Attack(Animation):
             self.trueY -= 1.5
 
 class MinionAttack(Attack):
-    image_file = data.filepath("minion_attack.png")
+    image_file = tools.filepath("minion_attack.png")
     speed = 3.5
     duration_after_hit = 6.0
 
 class RangedMinionAttack(Attack):
-    image_file = data.filepath("bullet.png")
+    image_file = tools.filepath("bullet.png")
     speed = 8.0
     duration_after_hit = 1.0

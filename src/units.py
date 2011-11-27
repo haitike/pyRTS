@@ -3,7 +3,7 @@ from base_units import *
 class Minion(Unit):
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
-        self.image_file = data.filepath("minion.png")
+        self.image_file = tools.filepath("minion.png")
         self.id = self.ID_MINION
         self.name = "Minion"
         self.max_hp = 20
@@ -16,7 +16,7 @@ class Minion(Unit):
 class RangedMinion(Unit):
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
-        self.image_file = data.filepath("ranged_minion.png")
+        self.image_file = tools.filepath("ranged_minion.png")
         self.id = self.ID_RANGEDMINION
         self.name = "Ranged Minion"
         self.AttackAnimation = RangedMinionAttack
@@ -36,7 +36,7 @@ class Nexus(Building):
     def __init__(self, startx,starty,owner,creation_point,target_point):
         Building.__init__(self,startx,starty,owner,creation_point,target_point)
 
-        self.image_file =  data.filepath("nexus.png")
+        self.image_file =  tools.filepath("nexus.png")
         self.id = self.ID_CC
         self.name = "Nexus"
         self.hp = 250
@@ -49,7 +49,7 @@ class Mineral(NeutralStuff):
     def __init__(self, startx,starty,owner):
         NeutralStuff.__init__(self,startx,starty,owner)
 
-        self.image_file = data.filepath("mineral.png")
+        self.image_file = tools.filepath("mineral.png")
         self.id = self.ID_MINERAL
         self.name = "Mineral"
 

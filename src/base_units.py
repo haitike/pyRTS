@@ -1,6 +1,6 @@
 import math
 import pygame
-import data
+import tools, game_data
 from animations import *
 
 class BaseObject(pygame.sprite.Sprite):
@@ -18,7 +18,7 @@ class BaseObject(pygame.sprite.Sprite):
     ID_RANGEDMINION = 51
 
     def __init__(self, startx,starty,owner=0):
-        self.image_file = data.filepath("placeholder.png")
+        self.image_file = tools.filepath("placeholder.png")
 
         # Unit Tecnical Stuff
         self.trueX = float(startx)
@@ -49,13 +49,13 @@ class BaseObject(pygame.sprite.Sprite):
         self.base_image = pygame.image.load(self.image_file)
         self.image = self.base_image
         self.rect = self.image.get_rect()
-        self.rect.centerx = self.trueX
-        self.rect.centery = self.trueY
+        self.rect.centerx = round(self.trueX + game_data.camera[0])
+        self.rect.centery = round(self.trueY + game_data.camera[1])
         self.hp = self.max_hp
 
     def update(self,players):
-        self.rect.centerx = round(self.trueX)
-        self.rect.centery = round(self.trueY)
+        self.rect.centerx = round(self.trueX + game_data.camera[0])
+        self.rect.centery = round(self.trueY + game_data.camera[1])
         self.image.blit(self.image, self.rect)
 
         if self.hp <= 0:
@@ -153,12 +153,12 @@ class Unit(BaseObject):
 
     def update_attack(self,players):
         if self.getEnemyDistance(self.target_enemy) < self.range:
-            self.move(self.target_enemy.rect, self.action)
+            self.move((self.target_enemy.trueX, self.target_enemy.trueY), self.action)
             if self.attack_timer > 30:
                 players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
                 self.attack_timer = 0
         else:
-            self.move(self.target_enemy.rect, self.action)
+            self.move((self.target_enemy.trueX, self.target_enemy.trueY), self.action)
             self.update_move(players)
         if self.target_enemy.alive() == False:
             if self.action == self.ID_ATTACK_MOVE: self.target_location = self.attack_move_location

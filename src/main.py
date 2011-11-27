@@ -1,10 +1,8 @@
-from ConfigParser import SafeConfigParser
-import data
+import tools, game_data
 from units import *
 from player import Player
 import pygame, sys
 
-WINDOW_SIZE = width, height = 800, 600
 SELECTION_EXTRAX, SELECTION_EXTRAY = 20, 20
 MOUSE_CURSOR1 = None
 MOUSE_CURSOR2 = (8, 8), (4,4), (24, 24, 24, 231, 231, 24, 24, 24), (0, 0, 0, 0, 0, 0, 0, 0)
@@ -18,8 +16,8 @@ def multiRender(lines, font, antialias, color, position, background):
 
 def background_redraw(tiless, screen):
     screen.fill((0,0,0))
-    for ydrw in range((height/tiless.get_height())+1):
-        for xdrw in range((width/tiless.get_width())+1):
+    for ydrw in range((game_data.height/tiless.get_height())+1):
+        for xdrw in range((game_data.width/tiless.get_width())+1):
             screen.blit(tiless,(xdrw*tiless.get_width(),ydrw*tiless.get_height()))
 
 def changePlayer( active, players): # Temporal function for switch the player
@@ -35,13 +33,10 @@ def changePlayer( active, players): # Temporal function for switch the player
 
 def main():
     attack = False
-    config = SafeConfigParser()
-    config.read(data.filepath('config.ini'))
-    fps = config.getfloat('configuration','fps')
 
     pygame.init()
-    screen = pygame.display.set_mode(WINDOW_SIZE) #make window
-    background = pygame.image.load(data.filepath('background.png'))
+    screen = pygame.display.set_mode(game_data.WINDOW_SIZE) #make window
+    background = pygame.image.load(tools.filepath('background.png'))
     MOUSE_CURSOR1 = pygame.mouse.get_cursor()
 
     #players
@@ -61,13 +56,24 @@ def main():
     players[1].units.add(RangedMinion(500,100,1))
     players[2].units.add(Minion(300,500,2))
     players[2].units.add(RangedMinion(500,500,2))
-    players[3].units.add(Nexus(400,50,3,(400,100),(400,600)))
-    players[4].units.add(Nexus(400,550,4,(400,500),(400,0)))
+    players[3].units.add(Nexus(400,50,3,(400,100),(400,1600)))
+    players[4].units.add(Nexus(400,1550,4,(400,1500),(400,0)))
 
     # Main Loop
     clock=pygame.time.Clock()
     while 1:
-        clock.tick(fps)
+        clock.tick(game_data.fps)
+
+        # Scroll Stuff
+        if pygame.key.get_pressed()[pygame.K_RIGHT] or pygame.mouse.get_pos()[0] > game_data.width - game_data.width/25 :
+            game_data.camera[0] -= 10
+        if pygame.key.get_pressed()[pygame.K_LEFT] or pygame.mouse.get_pos()[0] < game_data.width/25:
+            game_data.camera[0] += 10
+        if pygame.key.get_pressed()[pygame.K_UP] or pygame.mouse.get_pos()[1] < game_data.height/25:
+            game_data.camera[1] += 10
+        if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.mouse.get_pos()[1] > game_data.height - game_data.height/25 :
+            game_data.camera[1] -= 10
+
 
         # events
         for event in pygame.event.get():
@@ -88,7 +94,7 @@ def main():
                     if event.button == 3:
                         for unit in players[activePlayer].units:
                             if unit.selected == True and unit.type == unit.ID_UNIT:
-                                unit.move(event.pos)
+                                unit.move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
                                 for player in players:
                                     for target in player.units:
                                         if target.isPressed(pygame.mouse.get_pos()) and target.owner in players[unit.owner].enemies and target != unit and target.targetable == True:
@@ -113,7 +119,7 @@ def main():
                                             unit.attack(target)
                                             unit_in_cursor = True
                                 if unit_in_cursor == False:
-                                    unit.attack_move(event.pos)
+                                    unit.attack_move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
                     pygame.mouse.set_cursor(*MOUSE_CURSOR1)
                     attack = False
                 if event.type == pygame.KEYDOWN:
