@@ -57,7 +57,9 @@ def main():
     players[2].units.add(Minion(300,500,2))
     players[2].units.add(RangedMinion(500,500,2))
     players[3].units.add(Nexus(400,50,3,(400,100),(400,1600)))
+    players[3].units.add(Turret(500,250,3,(500,200),(400,1600)))
     players[4].units.add(Nexus(400,1550,4,(400,1500),(400,0)))
+    players[4].units.add(Turret(500,1350,4,(500,200),(400,1600)))
 
     # Main Loop
     clock=pygame.time.Clock()
@@ -73,7 +75,6 @@ def main():
             game_data.camera[1] += 10
         if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.mouse.get_pos()[1] > game_data.height - game_data.height/25 :
             game_data.camera[1] -= 10
-
 
         # events
         for event in pygame.event.get():

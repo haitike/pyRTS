@@ -13,7 +13,8 @@ class BaseObject(pygame.sprite.Sprite):
 
     # UNIT IDS
     ID_MINERAL = 0
-    ID_CC = 20
+    ID_NEXUS = 20
+    ID_TURRET = 21
     ID_MINION = 50
     ID_RANGEDMINION = 51
 
@@ -80,6 +81,24 @@ class BaseObject(pygame.sprite.Sprite):
     def getLifeBar(self):
         return  (self.max_hp - (self.max_hp - self.hp)) / float(self.max_hp)
 
+    def getEnemyDistance(self, enemy):
+        if enemy != None: return math.sqrt((self.trueX - enemy.trueX) **2 + (self.trueY - enemy.trueY)**2)
+        else: return None
+
+    def getNewEnemy(self,players):
+        units_in_range = []
+        for index in range(len(players)):
+            if index in players[self.owner].enemies:
+                for target in players[index].units:
+                    if target != self and target.targetable == True:
+                        if self.getEnemyDistance(target) < self.vision:
+                            units_in_range.append((self.getEnemyDistance(target),target))
+        if units_in_range == []:
+            return None
+        else:
+            return sorted(units_in_range)[0][1]
+
+
 class NeutralStuff(BaseObject):
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
@@ -98,12 +117,13 @@ class Building(BaseObject):
 
     def update(self,players):
         BaseObject.update(self,players)
-        self.build_timer += self.build_speed
-        if self.build_timer > 200:
-            newUnit = self.unit_trained(self.creation_point[0],self.creation_point[1],self.owner)
-            players[self.owner].units.add(newUnit)
-            newUnit.attack_move(self.target_point)
-            self.build_timer = 0
+        if self.unit_trained != None:
+            self.build_timer += self.build_speed
+            if self.build_timer > 200:
+                newUnit = self.unit_trained(self.creation_point[0],self.creation_point[1],self.owner)
+                players[self.owner].units.add(newUnit)
+                newUnit.attack_move(self.target_point)
+                self.build_timer = 0
 
 class Unit(BaseObject):
     def __init__(self, startx,starty,owner=0):
@@ -119,11 +139,14 @@ class Unit(BaseObject):
         BaseObject.update(self,players)
         if self.attack_timer <= 30: self.attack_timer += self.attack_speed
         if self.action == self.ID_STOP:
-            self.moveX = 0
-            self.moveY = 0
-            self.target_location = self.trueX, self.trueY
-            self.attack_move_location = self.trueX, self.trueY
-            self.target_enemy = None
+            self.target_enemy = self.getNewEnemy(players)
+            if self.target_enemy == None:
+                self.moveX = 0
+                self.moveY = 0
+                self.target_location = self.trueX, self.trueY
+                self.attack_move_location = self.trueX, self.trueY
+            else:
+                self.action = self.ID_ATTACK
         elif self.action == self.ID_MOVE:
             self.update_move(players)
         elif self.action == self.ID_ATTACK:
@@ -187,24 +210,6 @@ class Unit(BaseObject):
         self.target_location = target
         self.move(target,3)
         self.action = self.ID_ATTACK_MOVE
-
-    def getEnemyDistance(self, enemy):
-        if enemy != None: return math.sqrt((self.trueX - enemy.trueX) **2 + (self.trueY - enemy.trueY)**2)
-        else: return None
-
-    def getNewEnemy(self,players):
-        units_in_range = []
-        for index in range(len(players)):
-            if index in players[self.owner].enemies:
-                for target in players[index].units:
-                    if target != self and target.targetable == True:
-                        if self.getEnemyDistance(target) < self.vision:
-                            units_in_range.append((self.getEnemyDistance(target),target))
-        if units_in_range == []:
-            return None
-        else:
-            return sorted(units_in_range)[0][1]
-
 
 class Hero(Unit):
     pass

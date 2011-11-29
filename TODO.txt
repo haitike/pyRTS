@@ -14,3 +14,4 @@ dont "move" in the ID_Attack State when the unit is chasing (temporal fix for th
 Attack Move: Continue moving to the point after kill all the units in range.
 Attack Move: Continue moving to the point is the unit you are chasing go out of range
 Move BackGround Image when scrolling
+Passive Attack (While Stopped) shouldnt ignore collisions.

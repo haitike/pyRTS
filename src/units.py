@@ -28,22 +28,45 @@ class RangedMinion(Unit):
 
         self.unit_init()
 
-    def update(self, players):
-        Unit.update(self,players)
-        print self.attack_move_location, self.action
-
 class Nexus(Building):
     def __init__(self, startx,starty,owner,creation_point,target_point):
         Building.__init__(self,startx,starty,owner,creation_point,target_point)
 
         self.image_file =  tools.filepath("nexus.png")
-        self.id = self.ID_CC
+        self.id = self.ID_NEXUS
         self.name = "Nexus"
-        self.hp = 250
+        self.max_hp = 250
         self.armor = 0.2
         self.unit_trained = Minion
 
         self.unit_init()
+
+class Turret(Building):
+    def __init__(self, startx,starty,owner,creation_point,target_point):
+        Building.__init__(self,startx,starty,owner,creation_point,target_point)
+
+        self.attack_timer = 30
+
+        self.AttackAnimation = RangedMinionAttack
+        self.image_file =  tools.filepath("turret.png")
+        self.id = self.ID_TURRET
+        self.name = "Turret"
+        self.max_hp = 150
+        self.armor = 0.25
+        self.damage = 20
+        self.vision = self.range = 200
+
+        self.unit_init()
+
+    def update(self, players):
+        BaseObject.update(self,players)
+        if self.attack_timer <= 30: self.attack_timer += self.attack_speed
+        self.target_enemy = self.getNewEnemy(players)
+        if self.target_enemy != None:
+            if self.attack_timer > 30:
+                players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
+                self.attack_timer = 0
+
 
 class Mineral(NeutralStuff):
     def __init__(self, startx,starty,owner):
