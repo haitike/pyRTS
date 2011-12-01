@@ -1,10 +1,9 @@
 Fix the "dance" sprite draw while moving.
 Fix the bug when you move a unit to "Top-Left Corner" the sprite decolours.
-Assign each player a RGB color in the class and draw it
 Load Image function using "os.path", etc, with the folder "data", try, etc. (A sound function too)
 Draw the top text (player active) in the player RGB color.
 Collision and no unit pass trhought.
-You can select units from all players, enemies or not
+You can select units from all players, enemies or not (Red Circle in enemies)
 Scroll!
 Vision Fog
 Attack: Calcule range distances to enemy sides, not to center (useful for big targets)
@@ -15,3 +14,4 @@ Attack Move: Continue moving to the point after kill all the units in range.
 Attack Move: Continue moving to the point is the unit you are chasing go out of range
 Move BackGround Image when scrolling
 Passive Attack (While Stopped) shouldnt ignore collisions.
+Move the camera clicking in the minimap.

@@ -1,4 +1,5 @@
 import tools, game_data
+from minimap import *
 from units import *
 from player import Player
 import pygame, sys
@@ -39,13 +40,21 @@ def main():
     background = pygame.image.load(tools.filepath('background.png'))
     MOUSE_CURSOR1 = pygame.mouse.get_cursor()
 
-    #players
-    players = [Player("Neutral"), Player("Good Guys", True, 50), Player("The Evil", True, 50), Player("Good Minions",True), Player("Bad Minions",True)]
+    # Players
+    players = [Player("Neutral"),
+               Player("Good Guys", True, 50, (0,0,255)),
+               Player("The Evil", True, 50, (255,0,0)),
+               Player("Good Minions",True, 0, (150,50,255)),
+               Player("Bad Minions",True, 0, (255,0,200))]
     players[1].enemies = [2,4]
     players[2].enemies = [1,3]
     players[3].enemies = [2,4]
     players[4].enemies = [1,3]
     activePlayer = 1 # The player that is controlling the units
+
+    # Iniciate the Minimap
+    minimap = pygame.sprite.RenderClear()
+    minimap.add(Minimap())
 
     # Initial Units
     players[0].units.add(Mineral(200,180,0))
@@ -80,6 +89,14 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    game_data.camera = [0,0]
+                    #for player in players:
+                    #    for unit in player.units:
+                    #        if unit.selected == True:
+                    #            game_data.camera = [-unit.rect.centerx, -unit.rect.centery]
 
             if attack == False:
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -130,30 +147,25 @@ def main():
 
         # Updates and Draws
         background_redraw(background, screen)
-
+        minimap.update(players)
+        minimap.draw(screen)
         for i, player in enumerate(players):
             player.units.update(players)
             player.units.draw( screen )
         for i, player in enumerate(players):
             player.animations.update()
             player.animations.draw( screen )
-            if i == activePlayer :
-                color = 0,255,0
-            elif i in players[activePlayer].enemies:
-                color = 255,0,0
-            else:
-                color = 255,255,0
             for unit in player.units:
                 if unit.targetable == True:
                     pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-7,unit.rect.width,3))
-                    pygame.draw.rect(screen,color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
+                    pygame.draw.rect(screen,player.color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
                 if unit.selected == True:
-                    multiRender([unit.name,"HP: "+str(int(unit.hp))+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage), "Armor: "+str(unit.armor*100)+"%", "Attack Speed: "+str(unit.attack_speed)], font, True, (255,255,255),(620,480),screen)
+                    multiRender([unit.name,"HP: "+str(int(unit.hp))+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage), "Armor: "+str(unit.armor*100)+"%", "Attack Speed: "+str(unit.attack_speed)], font, True, (255,255,255),(game_data.width-160,game_data.height-120),screen)
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
 
         font = pygame.font.Font(None, 25)
-        multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold"], font, True, (255,255,255),(520,0),screen)
-        multiRender(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "ESC: Cancel Order"], font, True, (255,255,255),(10,500),screen)
+        multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold"], font, True, players[activePlayer].color,(10,0),screen)
+        multiRender(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "Space: Reset Camera" , "ESC: Cancel Order"], font, True, (255,255,255),(game_data.width-250,0),screen)
         pygame.display.flip() #update the screen
 
 if __name__ == '__main__': main()

@@ -37,7 +37,7 @@ class Nexus(Building):
         self.name = "Nexus"
         self.max_hp = 250
         self.armor = 0.2
-        self.unit_trained = Minion
+        self.unit_trained = RangedMinion
 
         self.unit_init()
 

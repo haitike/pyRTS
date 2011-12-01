@@ -37,6 +37,7 @@ class BaseObject(pygame.sprite.Sprite):
         self.action = self.ID_STOP
 
         # Unit Atributes
+        self.size = 2
         self.max_hp = 100
         self.speed = 0
         self.damage = 0
@@ -104,6 +105,7 @@ class NeutralStuff(BaseObject):
         BaseObject.__init__(self,startx,starty,owner)
         self.type = self.ID_NEUTRALSTUFF
         self.targetable = False
+        self.size = 3
 
 class Building(BaseObject):
     def __init__(self, startx,starty,owner,creation_point,target_point):
@@ -114,6 +116,7 @@ class Building(BaseObject):
         self.unit_trained = None
         self.creation_point = creation_point
         self.target_point = target_point
+        self.size = 4
 
     def update(self,players):
         BaseObject.update(self,players)
