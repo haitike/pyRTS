@@ -44,8 +44,8 @@ def main():
     players = [Player("Neutral"),
                Player("Good Guys", True, 50, (0,0,255)),
                Player("The Evil", True, 50, (255,0,0)),
-               Player("Good Minions",True, 0, (150,50,255)),
-               Player("Bad Minions",True, 0, (255,0,200))]
+               Player("Good Minions",True, 0, (128,0,128)),
+               Player("Bad Minions",True, 0, (255,153,0))]
     players[1].enemies = [2,4]
     players[2].enemies = [1,3]
     players[3].enemies = [2,4]
@@ -57,18 +57,18 @@ def main():
     minimap.add(Minimap())
 
     # Initial Units
-    players[0].units.add(Mineral(200,180,0))
-    players[0].units.add(Mineral(200,300,0))
-    players[0].units.add(Mineral(600,180,0))
-    players[0].units.add(Mineral(600,300,0))
-    players[1].units.add(Minion(300,100,1))
-    players[1].units.add(RangedMinion(500,100,1))
-    players[2].units.add(Minion(300,500,2))
-    players[2].units.add(RangedMinion(500,500,2))
-    players[3].units.add(Nexus(400,50,3,(400,100),(400,1600)))
-    players[3].units.add(Turret(500,250,3,(500,200),(400,1600)))
-    players[4].units.add(Nexus(400,1550,4,(400,1500),(400,0)))
-    players[4].units.add(Turret(500,1350,4,(500,200),(400,1600)))
+    players[0].units.add(Mineral(200,280,0))
+    players[0].units.add(Mineral(200,400,0))
+    players[0].units.add(Mineral(600,280,0))
+    players[0].units.add(Mineral(600,400,0))
+    players[1].units.add(Minion(300,200,1))
+    players[1].units.add(RangedMinion(500,200,1))
+    players[2].units.add(Minion(300,700,2))
+    players[2].units.add(RangedMinion(500,700,2))
+    players[3].units.add(Nexus(400,150,3,(400,200),(400,1300)))
+    players[3].units.add(Turret(500,350,3))
+    players[4].units.add(Nexus(400,1250,4,(400,1200),(400,100)))
+    players[4].units.add(Turret(500,1150,4))
 
     # Main Loop
     clock=pygame.time.Clock()
@@ -77,13 +77,13 @@ def main():
 
         # Scroll Stuff
         if pygame.key.get_pressed()[pygame.K_RIGHT] or pygame.mouse.get_pos()[0] > game_data.width - game_data.width/25 :
-            game_data.camera[0] -= 10
+            if game_data.camera[0] > -game_data.map_width + game_data.width: game_data.camera[0] -= 10
         if pygame.key.get_pressed()[pygame.K_LEFT] or pygame.mouse.get_pos()[0] < game_data.width/25:
-            game_data.camera[0] += 10
+            if game_data.camera[0] < 0: game_data.camera[0] += 10
         if pygame.key.get_pressed()[pygame.K_UP] or pygame.mouse.get_pos()[1] < game_data.height/25:
-            game_data.camera[1] += 10
+            if game_data.camera[1] < 0: game_data.camera[1] += 10
         if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.mouse.get_pos()[1] > game_data.height - game_data.height/25 :
-            game_data.camera[1] -= 10
+            if game_data.camera[1] > -game_data.map_height  + game_data.height: game_data.camera[1] -= 10
 
         # events
         for event in pygame.event.get():
@@ -160,7 +160,7 @@ def main():
                     pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-7,unit.rect.width,3))
                     pygame.draw.rect(screen,player.color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
                 if unit.selected == True:
-                    multiRender([unit.name,"HP: "+str(int(unit.hp))+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage), "Armor: "+str(unit.armor*100)+"%", "Attack Speed: "+str(unit.attack_speed)], font, True, (255,255,255),(game_data.width-160,game_data.height-120),screen)
+                    multiRender([unit.name,"HP: "+str(int(unit.hp))+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage), "Armor: "+str(unit.armor*100)+"%", "Attack Speed: "+str(unit.attack_speed)], font, True, player.color,(game_data.width-160,game_data.height-120),screen)
                     pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
 
         font = pygame.font.Font(None, 25)

@@ -108,7 +108,7 @@ class NeutralStuff(BaseObject):
         self.size = 3
 
 class Building(BaseObject):
-    def __init__(self, startx,starty,owner,creation_point,target_point):
+    def __init__(self, startx,starty,owner,creation_point=None,target_point=None):
         BaseObject.__init__(self,startx,starty,owner)
         self.type = self.ID_BUILDING
         self.build_timer = 0

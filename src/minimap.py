@@ -18,8 +18,8 @@ class Minimap(sprite.Sprite):
 
     def update(self, players):
         self.paintmap()
-        draw.rect(self.image, (255,255,255), (round(game_data.camera[0] * self.factorx,0),
-                                                     round(game_data.camera[1] * self.factory,0),
+        draw.rect(self.image, (255,255,255), (round(-game_data.camera[0] * self.factorx,0),
+                                                     round(-game_data.camera[1] * self.factory,0),
                                                      round(game_data.width * self.factorx, 0),
                                                      round(game_data.height * self.factory, 0)),1)
         for player in players:

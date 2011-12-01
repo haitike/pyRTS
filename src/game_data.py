@@ -9,8 +9,8 @@ fps = config.getfloat('configuration','fps')
 
 camera = [0,0]
 
-map_width = 1200
-map_height = 1800
+map_width = 800
+map_height = 1400
 
 minimap_width = 200
 minimap_height = 150

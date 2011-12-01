@@ -30,7 +30,7 @@ class RangedMinion(Unit):
 
 class Nexus(Building):
     def __init__(self, startx,starty,owner,creation_point,target_point):
-        Building.__init__(self,startx,starty,owner,creation_point,target_point)
+        Building.__init__(self,startx,starty,owner, creation_point, target_point)
 
         self.image_file =  tools.filepath("nexus.png")
         self.id = self.ID_NEXUS
@@ -42,8 +42,8 @@ class Nexus(Building):
         self.unit_init()
 
 class Turret(Building):
-    def __init__(self, startx,starty,owner,creation_point,target_point):
-        Building.__init__(self,startx,starty,owner,creation_point,target_point)
+    def __init__(self, startx,starty,owner):
+        Building.__init__(self,startx,starty,owner)
 
         self.attack_timer = 30
 
