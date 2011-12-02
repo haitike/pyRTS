@@ -1,7 +1,10 @@
 import math
 import pygame
-import tools, game_data
+import tools, game_data, groups
 from animations import *
+
+# Sprite _Layers
+#  2) Blockers/Obtacles  3) Buildings  4) Units
 
 class BaseObject(pygame.sprite.Sprite):
 
@@ -18,7 +21,7 @@ class BaseObject(pygame.sprite.Sprite):
     ID_MINION = 50
     ID_RANGEDMINION = 51
 
-    def __init__(self, startx,starty,owner=0):
+    def __init__(self, startx,starty,owner=None):
         self.image_file = tools.filepath("placeholder.png")
 
         # Unit Tecnical Stuff
@@ -47,7 +50,9 @@ class BaseObject(pygame.sprite.Sprite):
         self.vision = 150
 
     def unit_init(self):
-        pygame.sprite.Sprite.__init__(self)
+        self.groups = groups.unitgroup, groups.allgroup, self.owner.unitgroup
+        self._layer = 2
+        pygame.sprite.Sprite.__init__(self, self.groups)
         self.base_image = pygame.image.load(self.image_file)
         self.image = self.base_image
         self.rect = self.image.get_rect()
@@ -55,7 +60,7 @@ class BaseObject(pygame.sprite.Sprite):
         self.rect.centery = round(self.trueY + game_data.camera[1])
         self.hp = self.max_hp
 
-    def update(self,players):
+    def update(self, seconds):
         self.rect.centerx = round(self.trueX + game_data.camera[0])
         self.rect.centery = round(self.trueY + game_data.camera[1])
         self.image.blit(self.image, self.rect)
@@ -69,15 +74,13 @@ class BaseObject(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
     def isPressed(self,mouse):
+        pressed = False
         if mouse[0] > self.rect.topleft[0]:
             if mouse[1] > self.rect.topleft[1]:
                 if mouse[0] < self.rect.bottomright[0]:
                     if mouse[1] < self.rect.bottomright[1]:
-                        return True
-                    else: return False
-                else: return False
-            else: return False
-        else: return False
+                        pressed = True
+        return pressed
 
     def getLifeBar(self):
         return  (self.max_hp - (self.max_hp - self.hp)) / float(self.max_hp)
@@ -86,14 +89,13 @@ class BaseObject(pygame.sprite.Sprite):
         if enemy != None: return math.sqrt((self.trueX - enemy.trueX) **2 + (self.trueY - enemy.trueY)**2)
         else: return None
 
-    def getNewEnemy(self,players):
+    def getNewEnemy(self):
         units_in_range = []
-        for index in range(len(players)):
-            if index in players[self.owner].enemies:
-                for target in players[index].units:
-                    if target != self and target.targetable == True:
-                        if self.getEnemyDistance(target) < self.vision:
-                            units_in_range.append((self.getEnemyDistance(target),target))
+        for enemy in self.owner.enemies:
+            for target in enemy.unitgroup:
+                if target != self and target.targetable == True:
+                    if self.getEnemyDistance(target) < self.vision:
+                        units_in_range.append((self.getEnemyDistance(target),target))
         if units_in_range == []:
             return None
         else:
@@ -117,14 +119,14 @@ class Building(BaseObject):
         self.creation_point = creation_point
         self.target_point = target_point
         self.size = 4
+        self._layer = 3
 
-    def update(self,players):
-        BaseObject.update(self,players)
+    def update(self,seconds):
+        BaseObject.update(self,seconds)
         if self.unit_trained != None:
             self.build_timer += self.build_speed
             if self.build_timer > 200:
                 newUnit = self.unit_trained(self.creation_point[0],self.creation_point[1],self.owner)
-                players[self.owner].units.add(newUnit)
                 newUnit.attack_move(self.target_point)
                 self.build_timer = 0
 
@@ -137,12 +139,13 @@ class Unit(BaseObject):
         self.attack_timer = 30
         self.target_enemy = None
         self.attack_move_location = self.trueX, self.trueY
+        self._layer = 4
 
-    def update(self, players):
-        BaseObject.update(self,players)
+    def update(self, seconds):
+        BaseObject.update(self,seconds)
         if self.attack_timer <= 30: self.attack_timer += self.attack_speed
         if self.action == self.ID_STOP:
-            self.target_enemy = self.getNewEnemy(players)
+            self.target_enemy = self.getNewEnemy()
             if self.target_enemy == None:
                 self.moveX = 0
                 self.moveY = 0
@@ -151,19 +154,18 @@ class Unit(BaseObject):
             else:
                 self.action = self.ID_ATTACK
         elif self.action == self.ID_MOVE:
-            self.update_move(players)
+            self.update_move()
         elif self.action == self.ID_ATTACK:
-            self.update_attack(players)
+            self.update_attack()
         elif self.action == self.ID_ATTACK_MOVE:
-            self.target_enemy = self.getNewEnemy(players)
+            self.target_enemy = self.getNewEnemy()
             if self.target_enemy == None:
-                self.update_move(players)
+                self.update_move()
             else:
-                self.update_attack(players)
+                self.update_attack()
 
-    def update_move(self,players):
-        for player in players:
-            for unit in player.units:
+    def update_move(self):
+            for unit in groups.unitgroup:
                 if pygame.sprite.collide_rect(self, unit):
                     if self != unit:
                         self.action = self.ID_STOP
@@ -177,15 +179,15 @@ class Unit(BaseObject):
                             self.trueX += self.moveX
                             self.trueY += self.moveY
 
-    def update_attack(self,players):
+    def update_attack(self):
         if self.getEnemyDistance(self.target_enemy) < self.range:
             self.move((self.target_enemy.trueX, self.target_enemy.trueY), self.action)
             if self.attack_timer > 30:
-                players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
+                self.AttackAnimation(self, self.target_enemy ,self.damage, self.range )
                 self.attack_timer = 0
         else:
             self.move((self.target_enemy.trueX, self.target_enemy.trueY), self.action)
-            self.update_move(players)
+            self.update_move()
         if self.target_enemy.alive() == False:
             if self.action == self.ID_ATTACK_MOVE: self.target_location = self.attack_move_location
             else: self.action = self.ID_STOP

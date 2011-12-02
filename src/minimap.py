@@ -1,10 +1,15 @@
 from pygame import sprite, Surface, draw
-import game_data
+import game_data, groups
+
+# Sprite _Layers
+#  9) Minimap
 
 class Minimap(sprite.Sprite):
 
     def __init__(self):
-        sprite.Sprite.__init__(self)
+        self.groups = groups.allgroup
+        self._layer = 9
+        sprite.Sprite.__init__(self, self.groups)
         self.image = Surface((game_data.minimap_width, game_data.minimap_height))
         self.paintmap()
         self.rect = self.image.get_rect()
@@ -16,14 +21,22 @@ class Minimap(sprite.Sprite):
         self.image.fill((0,155,0))
         draw.rect(self.image, (150,0,0), (0,0, game_data.minimap_width, game_data.minimap_height),1)
 
-    def update(self, players):
+    def update(self, seconds):
         self.paintmap()
         draw.rect(self.image, (255,255,255), (round(-game_data.camera[0] * self.factorx,0),
                                                      round(-game_data.camera[1] * self.factory,0),
                                                      round(game_data.width * self.factorx, 0),
                                                      round(game_data.height * self.factory, 0)),1)
-        for player in players:
-            for unit in player.units:
-                pos = unit.trueX, unit.trueY
-                draw.circle(self.image, players[unit.owner].color, (int(pos[0] * self.factorx),
+        for unit in groups.unitgroup:
+            pos = unit.trueX, unit.trueY
+            draw.circle(self.image, unit.owner.color, (int(pos[0] * self.factorx),
                                                   int(pos[1] * self.factory)), unit.size )
+
+    def isPressed(self,mouse):
+        pressed = False
+        if mouse[0] > self.rect.topleft[0]:
+            if mouse[1] > self.rect.topleft[1]:
+                if mouse[0] < self.rect.bottomright[0]:
+                    if mouse[1] < self.rect.bottomright[1]:
+                        pressed = True
+        return pressed

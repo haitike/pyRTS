@@ -1,13 +1,18 @@
 import pygame
-import tools, game_data
+import tools, game_data, groups
 import math
+
+# Sprite _Layers
+#  5) Animations
 
 class Animation(pygame.sprite.Sprite):
     image_file = tools.filepath("placeholder.png")
     duration = 10
 
     def __init__(self,x, y):
-        pygame.sprite.Sprite.__init__(self)
+        self.groups = groups.animationgroup, groups.allgroup
+        self._layer = 5
+        pygame.sprite.Sprite.__init__(self, self.groups)
         self.base_image = pygame.image.load(self.image_file)
         self.image = self.base_image
         self.rect = self.image.get_rect()
@@ -17,7 +22,7 @@ class Animation(pygame.sprite.Sprite):
         self.rect.centery = round(self.trueY + game_data.camera[1])
         self.timer = 0
 
-    def update(self):
+    def update(self, seconds):
         self.rect.centerx = round(self.trueX + game_data.camera[0])
         self.rect.centery = round(self.trueY + game_data.camera[1])
         self.image.blit(self.image, self.rect)
@@ -30,13 +35,13 @@ class Attack(Animation):
     speed = 1
     duration_after_hit = 15
 
-    def __init__(self, origin_unit, target_unit, damage, range):
+    def __init__(self, origin_unit, target_unit, damage, attack_range):
         Animation.__init__(self,origin_unit.trueX ,origin_unit.trueY)
         self.damage = damage
         self.target_unit = target_unit
         self.damage_status = 0  # 0: No Damage  1: After-damage Animation 2: Number Animation
         self.hit = self.damage * (1.0 - self.target_unit.armor)
-        self.duration = range / self.speed
+        self.duration = attack_range / self.speed
 
         # Path Calculation
         dx = self.trueX - self.target_unit.trueX
@@ -46,8 +51,8 @@ class Attack(Animation):
         self.moveX = math.cos(radians) * self.speed
         self.moveY = math.sin(radians) * self.speed
 
-    def update(self):
-        Animation.update(self)
+    def update(self,seconds):
+        Animation.update(self,seconds)
 
         if self.damage_status == 0:
             if pygame.sprite.collide_rect(self, self.target_unit):

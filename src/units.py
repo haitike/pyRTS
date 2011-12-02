@@ -58,13 +58,13 @@ class Turret(Building):
 
         self.unit_init()
 
-    def update(self, players):
-        BaseObject.update(self,players)
+    def update(self, seconds):
+        BaseObject.update(self,seconds)
         if self.attack_timer <= 30: self.attack_timer += self.attack_speed
-        self.target_enemy = self.getNewEnemy(players)
+        self.target_enemy = self.getNewEnemy()
         if self.target_enemy != None:
             if self.attack_timer > 30:
-                players[self.owner].animations.add(self.AttackAnimation(self, self.target_enemy ,self.damage, self.range ))
+                self.AttackAnimation(self, self.target_enemy ,self.damage, self.range )
                 self.attack_timer = 0
 
 
