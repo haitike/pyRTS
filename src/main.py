@@ -22,9 +22,9 @@ def multiRender(lines, font, antialias, color, position, background):
 
 def background_redraw(tiless, screen):
     screen.fill((0,0,0))
-    for ydrw in range((game_data.height/tiless.get_height())+1):
-        for xdrw in range((game_data.width/tiless.get_width())+1):
-            screen.blit(tiless,(xdrw*tiless.get_width(),ydrw*tiless.get_height()))
+    for ydrw in range((game_data.map_height/tiless.get_height())+1):
+        for xdrw in range((game_data.map_width/tiless.get_width())+1):
+            screen.blit(tiless,((xdrw*tiless.get_width() + game_data.camera[0]),(ydrw*tiless.get_height() + game_data.camera[1])))
 
 def changePlayer( active, players): # Temporal function for switch the player
     if active +1 < len(players):
@@ -109,7 +109,8 @@ def main():
                             else:
                                 unit.selected = False
                         if minimap.isPressed(pygame.mouse.get_pos()):
-                            print "Minimap was clicked"
+                            posx, posy = minimap.getCamera(pygame.mouse.get_pos())
+                            Minion(posx, posy, players[activePlayer])
                     if event.button == 2:
                         for unit in players[activePlayer].unitgroup: unit.selected = False
                         activePlayer = changePlayer(activePlayer, players)
@@ -149,7 +150,6 @@ def main():
 
         # Updates and Draws
         background_redraw(background, screen)
-        groups.allgroup.clear(screen, background)
         groups.allgroup.update(seconds)
         for unit in groups.unitgroup:
             if unit.targetable == True:

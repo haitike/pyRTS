@@ -40,3 +40,9 @@ class Minimap(sprite.Sprite):
                     if mouse[1] < self.rect.bottomright[1]:
                         pressed = True
         return pressed
+
+    def getCamera(self,mouse):
+        posx = mouse[0]
+        posy = mouse[1] - game_data.height + game_data.minimap_height
+
+        return posx / self.factorx, posy / self.factory
