@@ -51,10 +51,10 @@ class Turret(Building):
         self.image_file =  tools.filepath("turret.png")
         self.id = self.ID_TURRET
         self.name = "Turret"
-        self.max_hp = 150
+        self.max_hp = 250
         self.armor = 0.25
-        self.damage = 20
-        self.vision = self.range = 200
+        self.damage = 30
+        self.vision = self.range = 250
 
         self.unit_init()
 

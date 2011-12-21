@@ -11,7 +11,9 @@ dont "move" in the ID_Attack State when the unit is chasing (temporal fix for th
 Attack Move: Continue moving to the point after kill all the units in range.
 Attack Move: Continue moving to the point is the unit you are chasing go out of range
 Passive Attack (While Stopped) shouldnt ignore collisions.
-Move the camera clicking in the minimap.
+Improved Move the camera clicking in the minimap.
 Backkgroup move, update with allgroup.clear.
 Use Seconds in the Sprite Updates for Stuff.
 Text, LifeBar and SelectionCircles Classes, with _layers.
+Improved Camera (Positive variables. Direct convertion with the map)
+allow to move camera with keys when cursor is in the infobar

@@ -9,10 +9,10 @@ from animations import *
 class BaseObject(pygame.sprite.Sprite):
 
     # ACTIONS IDS
-    ID_STOP, ID_MOVE, ID_ATTACK = range(3)
+    ID_STOP, ID_MOVE, ID_ATTACK, ID_ATTACK_MOVE = range(4)
 
     # UNIT TYPE IDS
-    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF, ID_ATTACK_MOVE = range(4)
+    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF, ID_HERO  = range(4)
 
     # UNIT IDS
     ID_MINERAL = 0
@@ -20,6 +20,7 @@ class BaseObject(pygame.sprite.Sprite):
     ID_TURRET = 21
     ID_MINION = 50
     ID_RANGEDMINION = 51
+    ID_TANK = 80
 
     def __init__(self, startx,starty,owner=None):
         self.image_file = tools.filepath("placeholder.png")
@@ -42,6 +43,7 @@ class BaseObject(pygame.sprite.Sprite):
         # Unit Atributes
         self.size = 2
         self.max_hp = 100
+        self.hp_regeneration = 0.0
         self.speed = 0
         self.damage = 0
         self.range = 100
@@ -61,6 +63,9 @@ class BaseObject(pygame.sprite.Sprite):
         self.hp = self.max_hp
 
     def update(self, seconds):
+        if self.hp < self.max_hp: self.hp += self.hp_regeneration
+        else: self.hp = self.max_hp
+
         self.rect.centerx = round(self.trueX + game_data.camera[0])
         self.rect.centery = round(self.trueY + game_data.camera[1])
         self.image.blit(self.image, self.rect)
@@ -217,4 +222,10 @@ class Unit(BaseObject):
         self.action = self.ID_ATTACK_MOVE
 
 class Hero(Unit):
-    pass
+    def __init__(self, startx,starty,owner=0):
+        Unit.__init__(self,startx,starty,owner)
+        #self.type = self.ID_HERO
+        self.vision = 300
+        self.hp_regeneration = 0.005
+        self.level = 1
+        self.exp = 0

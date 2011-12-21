@@ -4,8 +4,9 @@ GAME_NAME = "PyRTS "
 VERSION = "0.25"
 
 import tools, game_data, groups
-from minimap import *
+from infobar import *
 from units import *
+from heroes import *
 from player import Player
 import pygame, sys
 
@@ -42,7 +43,7 @@ def main():
     attack = False  # True is controlls are in "attack mode" (clicking "A")
 
     pygame.init()
-    screen = pygame.display.set_mode(game_data.WINDOW_SIZE)
+    screen = pygame.display.set_mode(game_data.WINDOW_SIZE, pygame.FULLSCREEN)
     pygame.display.set_caption(GAME_NAME + VERSION)
     background = pygame.image.load(tools.filepath('background.png'))
     MOUSE_CURSOR1 = pygame.mouse.get_cursor()
@@ -59,7 +60,7 @@ def main():
     players[4].enemies = [players[1], players[3]]
 
     # Iniciate the Minimap
-    minimap = Minimap()
+    infobar = Infobar()
 
     # Initial Units
     Mineral(350,280,players[0])
@@ -74,22 +75,25 @@ def main():
     Turret(650,350,players[3])
     Nexus(550,1250,players[4],(550,1200),(550,100))
     Turret(650,1150,players[4])
+    Tank(650, 300,players[1])
 
     # Main Loop
     clock=pygame.time.Clock()
     while 1:
+        print game_data.camera
         milliseconds = clock.tick(game_data.fps)  # milliseconds passed since last frame
         seconds = milliseconds / 1000.0 # seconds passed since last frame (float)
 
         # Scroll Stuff
-        if pygame.key.get_pressed()[pygame.K_RIGHT] or pygame.mouse.get_pos()[0] > game_data.width - game_data.width/25 :
-            if game_data.camera[0] > -game_data.map_width + game_data.width: game_data.camera[0] -= 10
-        if pygame.key.get_pressed()[pygame.K_LEFT] or pygame.mouse.get_pos()[0] < game_data.width/25:
-            if game_data.camera[0] < 0: game_data.camera[0] += 10
-        if pygame.key.get_pressed()[pygame.K_UP] or pygame.mouse.get_pos()[1] < game_data.height/25:
-            if game_data.camera[1] < 0: game_data.camera[1] += 10
-        if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.mouse.get_pos()[1] > game_data.height - game_data.height/25 :
-            if game_data.camera[1] > -game_data.map_height  + game_data.height: game_data.camera[1] -= 10
+        if pygame.mouse.get_pos()[1] < game_data.height - game_data.infobar_height:
+            if pygame.key.get_pressed()[pygame.K_RIGHT] or pygame.mouse.get_pos()[0] > game_data.width - game_data.width/25 :
+                if game_data.camera[0] > -game_data.map_width + game_data.width: game_data.camera[0] -= 10
+            if pygame.key.get_pressed()[pygame.K_LEFT] or pygame.mouse.get_pos()[0] < game_data.width/25:
+                if game_data.camera[0] < 0: game_data.camera[0] += 10
+            if pygame.key.get_pressed()[pygame.K_UP] or pygame.mouse.get_pos()[1] < game_data.height/25:
+                if game_data.camera[1] < 0: game_data.camera[1] += 10
+            if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.mouse.get_pos()[1] > (game_data.height - game_data.infobar_height) - game_data.height/25:
+                if game_data.camera[1] > -game_data.map_height  + game_data.height - game_data.infobar_height: game_data.camera[1] -= 10
 
         # events
         for event in pygame.event.get():
@@ -99,6 +103,8 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     game_data.camera = [0,0]
+                if event.key == pygame.K_ESCAPE:
+                    sys.exit()
 
             if attack == False:
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -108,9 +114,10 @@ def main():
                                 unit.selected = True
                             else:
                                 unit.selected = False
-                        if minimap.isPressed(pygame.mouse.get_pos()):
-                            posx, posy = minimap.getCamera(pygame.mouse.get_pos())
-                            Minion(posx, posy, players[activePlayer])
+                        if infobar.minimap.isPressed(pygame.mouse.get_pos()):
+                            posx, posy = infobar.minimap.getCamera(pygame.mouse.get_pos())
+                            game_data.camera = [-posx/2, -posy/2]
+                            #Minion(posx, posy, players[activePlayer])
                     if event.button == 2:
                         for unit in players[activePlayer].unitgroup: unit.selected = False
                         activePlayer = changePlayer(activePlayer, players)
