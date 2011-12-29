@@ -16,4 +16,3 @@ Backkgroup move, update with allgroup.clear.
 Use Seconds in the Sprite Updates for Stuff.
 Text, LifeBar and SelectionCircles Classes, with _layers.
 Improved Camera (Positive variables. Direct convertion with the map)
-allow to move camera with keys when cursor is in the infobar

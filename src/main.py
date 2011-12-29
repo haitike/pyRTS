@@ -80,20 +80,18 @@ def main():
     # Main Loop
     clock=pygame.time.Clock()
     while 1:
-        print game_data.camera
         milliseconds = clock.tick(game_data.fps)  # milliseconds passed since last frame
         seconds = milliseconds / 1000.0 # seconds passed since last frame (float)
 
         # Scroll Stuff
-        if pygame.mouse.get_pos()[1] < game_data.height - game_data.infobar_height:
-            if pygame.key.get_pressed()[pygame.K_RIGHT] or pygame.mouse.get_pos()[0] > game_data.width - game_data.width/25 :
-                if game_data.camera[0] > -game_data.map_width + game_data.width: game_data.camera[0] -= 10
-            if pygame.key.get_pressed()[pygame.K_LEFT] or pygame.mouse.get_pos()[0] < game_data.width/25:
-                if game_data.camera[0] < 0: game_data.camera[0] += 10
-            if pygame.key.get_pressed()[pygame.K_UP] or pygame.mouse.get_pos()[1] < game_data.height/25:
-                if game_data.camera[1] < 0: game_data.camera[1] += 10
-            if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.mouse.get_pos()[1] > (game_data.height - game_data.infobar_height) - game_data.height/25:
-                if game_data.camera[1] > -game_data.map_height  + game_data.height - game_data.infobar_height: game_data.camera[1] -= 10
+        if pygame.key.get_pressed()[pygame.K_RIGHT] or pygame.mouse.get_pos()[0] > game_data.width - 2 :
+            if game_data.camera[0] > -game_data.map_width + game_data.width: game_data.camera[0] -= 10
+        if pygame.key.get_pressed()[pygame.K_LEFT] or pygame.mouse.get_pos()[0] < 2:
+            if game_data.camera[0] < 0: game_data.camera[0] += 10
+        if pygame.key.get_pressed()[pygame.K_UP] or pygame.mouse.get_pos()[1] < 2:
+            if game_data.camera[1] < 0: game_data.camera[1] += 10
+        if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.mouse.get_pos()[1] > game_data.height - 2:
+            if game_data.camera[1] > -game_data.map_height  + game_data.height - game_data.infobar_height: game_data.camera[1] -= 10
 
         # events
         for event in pygame.event.get():
@@ -109,11 +107,12 @@ def main():
             if attack == False:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        for unit in players[activePlayer].unitgroup:
-                            if unit.isPressed(pygame.mouse.get_pos()):
-                                unit.selected = True
-                            else:
-                                unit.selected = False
+                        if pygame.mouse.get_pos()[1] < (game_data.height - game_data.infobar_height):
+                            for unit in players[activePlayer].unitgroup:
+                                if unit.isPressed(pygame.mouse.get_pos()):
+                                    unit.selected = True
+                                else:
+                                    unit.selected = False
                         if infobar.minimap.isPressed(pygame.mouse.get_pos()):
                             posx, posy = infobar.minimap.getCamera(pygame.mouse.get_pos())
                             game_data.camera = [-posx/2, -posy/2]
@@ -122,12 +121,13 @@ def main():
                         for unit in players[activePlayer].unitgroup: unit.selected = False
                         activePlayer = changePlayer(activePlayer, players)
                     if event.button == 3:
-                        for unit in players[activePlayer].unitgroup:
-                            if unit.selected == True and unit.type == unit.ID_UNIT:
-                                unit.move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
-                                for target in groups.unitgroup:
-                                    if target.isPressed(pygame.mouse.get_pos()) and target.owner in unit.owner.enemies and target != unit and target.targetable == True:
-                                        unit.attack(target)
+                        if pygame.mouse.get_pos()[1] < (game_data.height - game_data.infobar_height):
+                            for unit in players[activePlayer].unitgroup:
+                                if unit.selected == True and unit.type == unit.ID_UNIT:
+                                    unit.move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
+                                    for target in groups.unitgroup:
+                                        if target.isPressed(pygame.mouse.get_pos()) and target.owner in unit.owner.enemies and target != unit and target.targetable == True:
+                                            unit.attack(target)
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
@@ -138,16 +138,17 @@ def main():
 
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        unit_in_cursor = False
-                        for unit in players[activePlayer].unitgroup:
-                            if unit.selected == True and unit.type == unit.ID_UNIT:
-                                for target in groups.unitgroup:
-                                    if target.isPressed(pygame.mouse.get_pos()) and target != unit and target.targetable == True:
-                                        unit.attack(target)
-                                        unit_in_cursor = True
-                                if unit_in_cursor == False:
-                                    unit.attack_move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
+                    if pygame.mouse.get_pos()[1] < (game_data.height - game_data.infobar_height):
+                        if event.button == 1:
+                            unit_in_cursor = False
+                            for unit in players[activePlayer].unitgroup:
+                                if unit.selected == True and unit.type == unit.ID_UNIT:
+                                    for target in groups.unitgroup:
+                                        if target.isPressed(pygame.mouse.get_pos()) and target != unit and target.targetable == True:
+                                            unit.attack(target)
+                                            unit_in_cursor = True
+                                    if unit_in_cursor == False:
+                                        unit.attack_move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
                     pygame.mouse.set_cursor(*MOUSE_CURSOR1)
                     attack = False
                 if event.type == pygame.KEYDOWN:

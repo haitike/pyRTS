@@ -69,7 +69,7 @@ class BaseObject(pygame.sprite.Sprite):
         self.rect.centerx = round(self.trueX + game_data.camera[0])
         self.rect.centery = round(self.trueY + game_data.camera[1])
         self.image.blit(self.image, self.rect)
-
+		
         if self.hp <= 0:
             self.kill()
 
@@ -88,8 +88,10 @@ class BaseObject(pygame.sprite.Sprite):
         return pressed
 
     def getLifeBar(self):
-        return  (self.max_hp - (self.max_hp - self.hp)) / float(self.max_hp)
-
+        life = (self.max_hp - (self.max_hp - self.hp)) / float(self.max_hp)
+        if life > 0: return life
+        else: return 0
+        
     def getEnemyDistance(self, enemy):
         if enemy != None: return math.sqrt((self.trueX - enemy.trueX) **2 + (self.trueY - enemy.trueY)**2)
         else: return None
@@ -123,7 +125,7 @@ class Building(BaseObject):
         self.unit_trained = None
         self.creation_point = creation_point
         self.target_point = target_point
-        self.size = 4
+        self.size = 3
         self._layer = 3
 
     def update(self,seconds):
@@ -225,7 +227,9 @@ class Hero(Unit):
     def __init__(self, startx,starty,owner=0):
         Unit.__init__(self,startx,starty,owner)
         #self.type = self.ID_HERO
+        self.size = 4
         self.vision = 300
         self.hp_regeneration = 0.005
         self.level = 1
         self.exp = 0
+        

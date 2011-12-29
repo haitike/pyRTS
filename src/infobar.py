@@ -3,12 +3,13 @@ from text import Text
 import game_data, groups
 
 # Sprite _Layers
-#  9) Infobar / Minimap
+#  8) Infobar 
+#  9) Minimap | SelectionBox | HeroBox
 
 class Infobar(sprite.Sprite):
     def __init__(self):
         self.groups = groups.allgroup
-        self._layer = 9
+        self._layer = 8
         sprite.Sprite.__init__(self, self.groups)
         self.image = Surface((game_data.width, game_data.infobar_height))
         draw.rect(self.image, (150,0,0), (0,0, game_data.width, game_data.infobar_height),1)
@@ -16,6 +17,8 @@ class Infobar(sprite.Sprite):
         self.rect.bottomleft = (0, game_data.height)
 
         self.minimap = Minimap()
+        SelectionBox()
+        HeroBox()
         text1 = Text("Test", game_data.infobar_fontcolor, self.rect.midtop)
 
     def update(self, seconds):
@@ -64,3 +67,20 @@ class Minimap(sprite.Sprite):
         posy = mouse[1] - game_data.height + game_data.minimap_height
 
         return posx / self.factorx, posy / self.factory
+
+class SelectionBox(sprite.Sprite):
+    def __init__(self):
+        self.groups = groups.allgroup
+        self._layer = 9
+        sprite.Sprite.__init__(self, self.groups)
+        self.image = Surface((game_data.selectionbox_width, game_data.selectionbox_height))
+        self.update(0)
+        self.rect = self.image.get_rect()
+        self.rect.bottomleft = (game_data.width - game_data.selectionbox_width, game_data.height)
+
+    def update(self, seconds):
+        self.image.fill(game_data.selectionbox_color)
+        draw.rect(self.image, game_data.selectionbox_bordercolor, (0,0, game_data.selectionbox_width, game_data.selectionbox_height),1)
+
+class HeroBox():
+    pass

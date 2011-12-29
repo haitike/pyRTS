@@ -33,6 +33,7 @@ class Nexus(Building):
         Building.__init__(self,startx,starty,owner, creation_point, target_point)
 
         self.image_file =  tools.filepath("nexus.png")
+        self.size = 5
         self.id = self.ID_NEXUS
         self.name = "Nexus"
         self.max_hp = 250

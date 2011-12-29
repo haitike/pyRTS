@@ -1,6 +1,9 @@
 from pygame import sprite, font
 import groups
 
+# Sprite _Layers
+#  10) Text 
+
 class Text(sprite.Sprite):
     """a pygame Sprite displaying text"""
     def __init__(self, msg="The Python Game Book", color=(0,0,0), topleft=(0,0)):
