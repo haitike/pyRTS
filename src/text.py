@@ -23,7 +23,7 @@ class Text(sprite.Sprite):
 
     def write(self, msg="Placeholder", color=(0,0,0)):
         """write text into pygame surfaces"""
-        myfont = font.SysFont("None", 32)
+        myfont = font.Font(None, 25)
         mytext = myfont.render(msg, True, color)
         mytext = mytext.convert_alpha()
         return mytext

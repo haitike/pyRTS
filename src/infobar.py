@@ -19,7 +19,6 @@ class Infobar(sprite.Sprite):
         self.minimap = Minimap()
         SelectionBox()
         HeroBox()
-        text1 = Text("Test", game_data.infobar_fontcolor, self.rect.midtop)
 
     def update(self, seconds):
         #self.image = Surface((game_data.width, game_data.infobar_height))
@@ -74,13 +73,25 @@ class SelectionBox(sprite.Sprite):
         self._layer = 9
         sprite.Sprite.__init__(self, self.groups)
         self.image = Surface((game_data.selectionbox_width, game_data.selectionbox_height))
-        self.update(0)
+        self.paintbox()
         self.rect = self.image.get_rect()
         self.rect.bottomleft = (game_data.width - game_data.selectionbox_width, game_data.height)
-
-    def update(self, seconds):
+        self.text1 = Text("Units Selected: 0", game_data.infobar_fontcolor, self.rect.topleft)
+        
+    def paintbox(self):
         self.image.fill(game_data.selectionbox_color)
         draw.rect(self.image, game_data.selectionbox_bordercolor, (0,0, game_data.selectionbox_width, game_data.selectionbox_height),1)
-
+        
+    def update(self, seconds):
+        self.paintbox()
+        self.text1.newmsg("Units Selected: "+str(self.getUnitsSelected()))
+        
+    def getUnitsSelected(self):
+        selected = 0
+        for unit in groups.unitgroup:
+            if unit.selected == True:
+                selected += 1
+        return selected
+    
 class HeroBox():
     pass
