@@ -133,8 +133,9 @@ class Building(BaseObject):
         if self.unit_trained != None:
             self.build_timer += self.build_speed
             if self.build_timer > 200:
-                newUnit = self.unit_trained(self.creation_point[0],self.creation_point[1],self.owner)
-                newUnit.attack_move(self.target_point)
+                for unit in self.unit_trained:  
+                    newUnit = unit(self.creation_point[0],self.creation_point[1],self.owner)
+                    newUnit.attack_move(self.target_point)
                 self.build_timer = 0
 
 class Unit(BaseObject):
@@ -175,7 +176,7 @@ class Unit(BaseObject):
             for unit in groups.unitgroup:
                 if pygame.sprite.collide_rect(self, unit):
                     if self != unit:
-                        self.action = self.ID_STOP
+                        pass#self.action = self.ID_STOP
                     else:
                         dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
                         if dlength < self.speed:

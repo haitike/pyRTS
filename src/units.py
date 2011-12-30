@@ -10,6 +10,7 @@ class Minion(Unit):
         self.speed = 2.5
         self.damage = 5
         self.range = 45
+        self.armor = 0.01
 
         self.unit_init()
 
@@ -23,7 +24,7 @@ class RangedMinion(Unit):
         self.max_hp = 16
         self.speed = 2
         self.damage = 3
-        self.range = 150
+        self.range = 120
         self.attack_speed = 1.2
 
         self.unit_init()
@@ -38,7 +39,7 @@ class Nexus(Building):
         self.name = "Nexus"
         self.max_hp = 250
         self.armor = 0.2
-        self.unit_trained = RangedMinion
+        self.unit_trained = [Minion, RangedMinion]
 
         self.unit_init()
 
@@ -52,10 +53,10 @@ class Turret(Building):
         self.image_file =  tools.filepath("turret.png")
         self.id = self.ID_TURRET
         self.name = "Turret"
-        self.max_hp = 250
+        self.max_hp = 300
         self.armor = 0.25
-        self.damage = 30
-        self.vision = self.range = 250
+        self.damage = 20
+        self.vision = self.range = 200
 
         self.unit_init()
 

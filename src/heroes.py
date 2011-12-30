@@ -12,7 +12,7 @@ class Tank(Hero):
         self.hp_regeneration = 0.008
         self.speed = 3
         self.damage = 15
-        self.range = 200
+        self.range = 170
         self.attack_speed = 1.5
         self.armor = 0.05
         self.unit_init()

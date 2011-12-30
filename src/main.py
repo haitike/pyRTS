@@ -58,7 +58,7 @@ def main():
 
     # Iniciate the text
     text1 = Text("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold", players[activePlayer].color,(10,0))
-    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "Space: Reset Camera" , "ESC: Cancel Order"]):
+    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "Space: Reset Camera" , "ESC: Cancel Order", "CONTROL: Multi-Selection"]):
         Text(text, (255,255,255),(game_data.width-250,0+i*20))
 
     # Initial Units
@@ -109,9 +109,10 @@ def main():
                         if pygame.mouse.get_pos()[1] < (game_data.height - game_data.infobar_height):
                             for unit in players[activePlayer].unitgroup:
                                 if unit.isPressed(pygame.mouse.get_pos()):
-                                    unit.selected = True
+                                    if pygame.key.get_pressed()[pygame.K_LCTRL] == True and unit.selected == True: unit.selected = False
+                                    else: unit.selected = True
                                 else:
-                                    unit.selected = False
+                                    if pygame.key.get_pressed()[pygame.K_LCTRL] == False: unit.selected = False
                         if infobar.minimap.isPressed(pygame.mouse.get_pos()):
                             posx, posy = infobar.minimap.getCamera(pygame.mouse.get_pos())
                             game_data.camera = [-posx/2, -posy/2]
