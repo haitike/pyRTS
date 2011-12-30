@@ -76,7 +76,8 @@ class SelectionBox(sprite.Sprite):
         self.paintbox()
         self.rect = self.image.get_rect()
         self.rect.bottomleft = (game_data.width - game_data.selectionbox_width, game_data.height)
-        self.text1 = Text("Units Selected: 0", game_data.infobar_fontcolor, self.rect.topleft)
+        self.text = []
+        for x in range(6): self.text.append(Text("", game_data.infobar_fontcolor, (self.rect.left, self.rect.top + x*20)))
         
     def paintbox(self):
         self.image.fill(game_data.selectionbox_color)
@@ -84,13 +85,24 @@ class SelectionBox(sprite.Sprite):
         
     def update(self, seconds):
         self.paintbox()
-        self.text1.newmsg("Units Selected: "+str(self.getUnitsSelected()))
+        selectedUnits = self.getSelectedUnits()
+        if len(selectedUnits) == 1:
+            self.text[0].newmsg(selectedUnits[0].name)
+            self.text[1].newmsg("HP: "+str(int(selectedUnits[0].hp))+" / "+str(selectedUnits[0].max_hp))
+            self.text[2].newmsg("Speed: "+str(selectedUnits[0].speed))
+            self.text[3].newmsg("Damage: "+str(selectedUnits[0].damage))
+            self.text[4].newmsg("Armor: "+str(selectedUnits[0].armor*100)+"%")
+            self.text[5].newmsg("Attack Speed: "+str(selectedUnits[0].attack_speed))        
+        else:
+            for x in self.text:
+                x.newmsg("")
+            if len(selectedUnits) > 1: self.text[0].newmsg("Units Selected: "+str(len(selectedUnits)))
         
-    def getUnitsSelected(self):
-        selected = 0
+    def getSelectedUnits(self):
+        selected = []
         for unit in groups.unitgroup:
             if unit.selected == True:
-                selected += 1
+                selected.append(unit)
         return selected
     
 class HeroBox():

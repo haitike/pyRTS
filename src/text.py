@@ -20,7 +20,7 @@ class Text(sprite.Sprite):
         self.image =  self.write(msg,color)
         self.rect = self.image.get_rect()
         self.rect.topleft = self.topleft
-
+            
     def write(self, msg="Placeholder", color=(0,0,0)):
         """write text into pygame surfaces"""
         myfont = font.Font(None, 25)

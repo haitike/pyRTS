@@ -1,4 +1,5 @@
 from ConfigParser import SafeConfigParser
+from pygame import font
 import tools
 
 config = SafeConfigParser()

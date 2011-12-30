@@ -8,18 +8,12 @@ from infobar import *
 from units import *
 from heroes import *
 from player import Player
+from text import Text
 import pygame, sys
 
 SELECTION_EXTRAX, SELECTION_EXTRAY = 20, 20
 MOUSE_CURSOR1 = None
 MOUSE_CURSOR2 = (8, 8), (4,4), (24, 24, 24, 231, 231, 24, 24, 24), (0, 0, 0, 0, 0, 0, 0, 0)
-
-def multiRender(lines, font, antialias, color, position, background):
-    # RenderFont for multiple lines of text in a list.
-    fontHeight = font.get_height()
-    text = [font.render(line, antialias, color) for line in lines]
-    for i in range(len(lines)):
-        background.blit(text[i], (position[0],position[1]+(i*fontHeight)))
 
 def background_redraw(tiless, screen):
     screen.fill((0,0,0))
@@ -61,6 +55,11 @@ def main():
 
     # Iniciate the Minimap
     infobar = Infobar()
+
+    # Iniciate the text
+    text1 = Text("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold", players[activePlayer].color,(10,0))
+    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "Space: Reset Camera" , "ESC: Cancel Order"]):
+        Text(text, (255,255,255),(game_data.width-250,0+i*20))
 
     # Initial Units
     Mineral(350,280,players[0])
@@ -164,12 +163,10 @@ def main():
                 pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-7,unit.rect.width,3))
                 pygame.draw.rect(screen,unit.owner.color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
             if unit.selected == True:
-                multiRender([unit.name,"HP: "+str(int(unit.hp))+" / "+str(unit.max_hp),"Speed: "+str(unit.speed),"Damage: "+str(unit.damage), "Armor: "+str(unit.armor*100)+"%", "Attack Speed: "+str(unit.attack_speed)], font, True, players[activePlayer].color,(game_data.width-160,game_data.height-120),screen)
                 pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
 
         font = pygame.font.Font(None, 25)
-        multiRender(["Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold"], font, True, players[activePlayer].color,(10,0),screen)
-        multiRender(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "Space: Reset Camera" , "ESC: Cancel Order"], font, True, (255,255,255),(game_data.width-250,0),screen)
+        text1.newmsg("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold", players[activePlayer].color)
         groups.allgroup.draw(screen)
         pygame.display.flip( ) #update the screen
 
