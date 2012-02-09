@@ -33,6 +33,7 @@ def changePlayer( active, players): # Temporal function for switch the player
     return active
 
 def main():
+    replay_list = []
     activePlayer = 1 # The player that is controlling the units
     attack = False  # True is controlls are in "attack mode" (clicking "A")
 
@@ -78,7 +79,8 @@ def main():
 
     # Main Loop
     clock=pygame.time.Clock()
-    while 1:
+    finish_game = False
+    while not finish_game:
         milliseconds = clock.tick(game_data.fps)  # milliseconds passed since last frame
         seconds = milliseconds / 1000.0 # seconds passed since last frame (float)
 
@@ -95,13 +97,13 @@ def main():
         # events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                sys.exit()
+                finish_game = True #sys.exit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     game_data.camera = [0,0]
                 if event.key == pygame.K_ESCAPE:
-                    sys.exit()
+                    finish_game = True #sys.exit()
 
             if attack == False:
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -125,9 +127,11 @@ def main():
                             for unit in players[activePlayer].unitgroup:
                                 if unit.selected == True and unit.type == unit.ID_UNIT:
                                     unit.move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
+                                    replay_list.append(unit.move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1])))
                                     for target in groups.unitgroup:
                                         if target.isPressed(pygame.mouse.get_pos()) and target.owner in unit.owner.enemies and target != unit and target.targetable == True:
                                             unit.attack(target)
+                                            replay_list.append(unit.attack(target))
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
@@ -146,9 +150,12 @@ def main():
                                     for target in groups.unitgroup:
                                         if target.isPressed(pygame.mouse.get_pos()) and target != unit and target.targetable == True:
                                             unit.attack(target)
+                                            replay_list.append(unit.attack(target))
                                             unit_in_cursor = True
                                     if unit_in_cursor == False:
                                         unit.attack_move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
+                                        replay_list.append(unit.attack_move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1])))
+
                     pygame.mouse.set_cursor(*MOUSE_CURSOR1)
                     attack = False
                 if event.type == pygame.KEYDOWN:
@@ -170,5 +177,9 @@ def main():
         text1.newmsg("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold", players[activePlayer].color)
         groups.allgroup.draw(screen)
         pygame.display.flip( ) #update the screen
+
+    replay_list.append(pygame.quit)
+    print replay_list
+    pygame.quit()
 
 if __name__ == '__main__': main()
