@@ -97,13 +97,13 @@ def main():
         # events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                finish_game = True #sys.exit()
+                finish_game = True
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     game_data.camera = [0,0]
                 if event.key == pygame.K_ESCAPE:
-                    finish_game = True #sys.exit()
+                    pygame.event.post(pygame.event.Event(pygame.QUIT))
 
             if attack == False:
                 if event.type == pygame.MOUSEBUTTONDOWN:
