@@ -3,7 +3,7 @@ import tools, game_data, groups
 import math
 
 # Sprite _Layers
-#  5) Animations
+#  6) Animations
 
 class Animation(pygame.sprite.Sprite):
     image_file = tools.filepath("placeholder.png")
@@ -11,7 +11,7 @@ class Animation(pygame.sprite.Sprite):
 
     def __init__(self,x, y):
         self.groups = groups.animationgroup, groups.allgroup
-        self._layer = 5
+        self._layer = 6
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.base_image = pygame.image.load(self.image_file)
         self.image = self.base_image

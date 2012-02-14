@@ -59,7 +59,7 @@ def main():
 
     # Iniciate the text
     text1 = Text("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold", players[activePlayer].color,(10,0))
-    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "Space: Reset Camera" , "ESC: Cancel Order", "CONTROL: Multi-Selection"]):
+    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "L: LevelUp", "Space: Reset Camera" , "ESC: Cancel Order", "CONTROL: Multi-Selection"]):
         Text(text, (255,255,255),(game_data.width-250,0+i*20))
 
     # Initial Units
@@ -125,20 +125,24 @@ def main():
                     if event.button == 3:
                         if pygame.mouse.get_pos()[1] < (game_data.height - game_data.infobar_height):
                             for unit in players[activePlayer].unitgroup:
-                                if unit.selected == True and unit.type == unit.ID_UNIT:
+                                if unit.selected == True and unit.ID_UNIT in unit.type:
                                     unit.move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
-                                    replay_list.append(unit.move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1])))
+                                    replay_list.append("move")
                                     for target in groups.unitgroup:
                                         if target.isPressed(pygame.mouse.get_pos()) and target.owner in unit.owner.enemies and target != unit and target.targetable == True:
                                             unit.attack(target)
-                                            replay_list.append(unit.attack(target))
+                                            replay_list.append("attack")
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
                         for unit in players[activePlayer].unitgroup:
-                            if unit.type == unit.ID_UNIT and unit.selected == True:
+                            if unit.ID_UNIT in unit.type and unit.selected == True:
                                 pygame.mouse.set_cursor(*MOUSE_CURSOR2)
                                 attack = True
+                    if event.key == pygame.K_l:
+                        for unit in players[activePlayer].unitgroup:
+                            if unit.ID_HERO in unit.type and unit.selected == True:
+                                unit.level += 1
 
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -146,15 +150,15 @@ def main():
                         if event.button == 1:
                             unit_in_cursor = False
                             for unit in players[activePlayer].unitgroup:
-                                if unit.selected == True and unit.type == unit.ID_UNIT:
+                                if unit.selected == True and unit.ID_UNIT in unit.type:
                                     for target in groups.unitgroup:
                                         if target.isPressed(pygame.mouse.get_pos()) and target != unit and target.targetable == True:
                                             unit.attack(target)
-                                            replay_list.append(unit.attack(target))
+                                            replay_list.append("attack")
                                             unit_in_cursor = True
                                     if unit_in_cursor == False:
                                         unit.attack_move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
-                                        replay_list.append(unit.attack_move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1])))
+                                        replay_list.append("attack move")
 
                     pygame.mouse.set_cursor(*MOUSE_CURSOR1)
                     attack = False
@@ -178,7 +182,7 @@ def main():
         groups.allgroup.draw(screen)
         pygame.display.flip( ) #update the screen
 
-    replay_list.append(pygame.quit)
+    replay_list.append("quit")
     print replay_list
     pygame.quit()
 

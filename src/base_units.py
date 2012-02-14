@@ -4,7 +4,7 @@ import tools, game_data, groups
 from animations import *
 
 # Sprite _Layers
-#  2) Blockers/Obtacles  3) Buildings  4) Units
+#  2) Blockers/Obtacles  3) Buildings  4) Units   5) Hero
 
 class BaseObject(pygame.sprite.Sprite):
 
@@ -22,8 +22,12 @@ class BaseObject(pygame.sprite.Sprite):
     ID_RANGEDMINION = 51
     ID_TANK = 80
 
+    # ATTACK DAMAGE TYPES
+    ID_BLUDGEONING, ID_PIERCING, ID_SLASHING, ID_FIRE = range(4) 
+
     def __init__(self, startx,starty,owner=None):
         self.image_file = tools.filepath("placeholder.png")
+        self._layer = 2
 
         # Unit Tecnical Stuff
         self.trueX = float(startx)
@@ -35,7 +39,7 @@ class BaseObject(pygame.sprite.Sprite):
         self.owner = owner
         self.id = None
         self.name = None
-        self.type = None
+        self.type = ()
         self.selected = False
         self.targetable = True
         self.action = self.ID_STOP
@@ -53,7 +57,6 @@ class BaseObject(pygame.sprite.Sprite):
 
     def unit_init(self):
         self.groups = groups.unitgroup, groups.allgroup, self.owner.unitgroup
-        self._layer = 2
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.base_image = pygame.image.load(self.image_file)
         self.image = self.base_image
@@ -112,21 +115,21 @@ class BaseObject(pygame.sprite.Sprite):
 class NeutralStuff(BaseObject):
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
-        self.type = self.ID_NEUTRALSTUFF
+        self.type = (self.ID_NEUTRALSTUFF,)
         self.targetable = False
         self.size = 3
 
 class Building(BaseObject):
     def __init__(self, startx,starty,owner,creation_point=None,target_point=None):
         BaseObject.__init__(self,startx,starty,owner)
-        self.type = self.ID_BUILDING
+        self._layer = 3
+        self.type = (self.ID_BUILDING,)
         self.build_timer = 0
         self.build_speed = 1
         self.unit_trained = None
         self.creation_point = creation_point
         self.target_point = target_point
         self.size = 3
-        self._layer = 3
 
     def update(self,seconds):
         BaseObject.update(self,seconds)
@@ -141,13 +144,13 @@ class Building(BaseObject):
 class Unit(BaseObject):
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
+        self._layer = 4
         self.AttackAnimation = MinionAttack
-        self.type = self.ID_UNIT
+        self.type = (self.ID_UNIT,)
         self.target_location = self.trueX, self.trueY
         self.attack_timer = 30
         self.target_enemy = None
         self.attack_move_location = self.trueX, self.trueY
-        self._layer = 4
 
     def update(self, seconds):
         BaseObject.update(self,seconds)
@@ -225,12 +228,68 @@ class Unit(BaseObject):
         self.action = self.ID_ATTACK_MOVE
 
 class Hero(Unit):
+    initialAtributes = (15,15,15,15,15) # Vitality, Energy, Strength, Dextery, Inteligence
+    initialSpeed = 3
+    initialRange = 50
+    isMelee = True
+    attackType = Unit.ID_SLASHING
+
     def __init__(self, startx,starty,owner=0):
         Unit.__init__(self,startx,starty,owner)
-        #self.type = self.ID_HERO
+        self._layer = 5
+        self.type = (self.ID_HERO , self.ID_UNIT)
         self.size = 4
         self.vision = 300
-        self.hp_regeneration = 0.005
+
+        self.atributes = list(self.initialAtributes)
         self.level = 1
+        self.maxLevel = 25
         self.exp = 0
-        
+        self.expPerLevel = range(self.maxLevel)
+        self.skillPoints = 1
+        self.atrPoints = 1
+        self.atrPointsBonus = [0,0,0,0,0]
+        self.extraAtrPoints = (23,25)
+        self.atrIncrement = list(self.initialAtributes)
+        self.items = (None,None,None,None,None,None,None,None)
+        self.modifiers = []
+
+        # Calculate Exp needed per level and Atribute Gain per level
+        for lv in range(self.maxLevel):
+            self.expPerLevel[lv] = 100 + 25*lv
+        for at in range(len(self.atrIncrement)):
+            self.atrIncrement[at] = self.initialAtributes[at] * 0.1
+
+        self.updateStats()
+
+    def update(self, seconds):
+        Unit.update(self,seconds)
+        if self.level < self.maxLevel:
+            self.checkLevelUp()
+        self.updateStats()
+
+    def checkLevelUp(self):
+        if self.exp >= self.expPerLevel[self.level]:
+            self.exp -= self.expPerLevel[self.level]
+            self.level += 1
+            self.atrPoints += 1
+            if self.level in self.extraAtrPoint:
+                self.atrPoints += 1
+            else:
+                self.skillPoints += 1
+
+    def updateStats(self):
+        itemAtrBonus, itemStatsBonus = self.calculateItemBonus()
+        modifierAtrBonus,modifierStatsBonus = self.calculateModifierBonus()
+
+        for atr in range(len(self.atributes)):
+            self.atributes[atr] = self.initialAtributes[atr] + self.atrIncrement[atr]*(self.level-1) + self.atrPointsBonus[atr] + itemAtrBonus[atr] + modifierAtrBonus[atr]
+
+        self.max_hp = 100 + self.atributes[0]*20 + itemStatsBonus[0] + modifierStatsBonus[0]  
+        self.speed = self.initialSpeed + itemStatsBonus[10] + modifierStatsBonus[10]  
+
+    def calculateItemBonus(self):
+        return (0,0,0,0,0) , (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+    
+    def calculateModifierBonus(self):
+        return (0,0,0,0,0) , (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
