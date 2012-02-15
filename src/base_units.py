@@ -23,7 +23,7 @@ class BaseObject(pygame.sprite.Sprite):
     ID_TANK = 80
 
     # ATTACK DAMAGE TYPES
-    ID_BLUDGEONING, ID_PIERCING, ID_SLASHING, ID_FIRE = range(4) 
+    ID_BLUDGEONING, ID_PIERCING, ID_SLASHING, ID_FIRE = range(4)
 
     def __init__(self, startx,starty,owner=None):
         self.image_file = tools.filepath("placeholder.png")
@@ -46,13 +46,13 @@ class BaseObject(pygame.sprite.Sprite):
 
         # Unit Atributes
         self.size = 2
-        self.max_hp = 100
-        self.hp_regeneration = 0.0
+        self.maxHP= 100
+        self.hpReg = 0.0
         self.speed = 0
         self.damage = 0
         self.range = 100
-        self.armor = 0
-        self.attack_speed = 1
+        self.phRes = 0
+        self.atSpeed = 1
         self.vision = 150
 
     def unit_init(self):
@@ -63,16 +63,16 @@ class BaseObject(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = round(self.trueX + game_data.camera[0])
         self.rect.centery = round(self.trueY + game_data.camera[1])
-        self.hp = self.max_hp
+        self.hp = self.maxHP
 
     def update(self, seconds):
-        if self.hp < self.max_hp: self.hp += self.hp_regeneration
-        else: self.hp = self.max_hp
+        if self.hp < self.maxHP: self.hp += self.hpReg
+        else: self.hp = self.maxHP
 
         self.rect.centerx = round(self.trueX + game_data.camera[0])
         self.rect.centery = round(self.trueY + game_data.camera[1])
         self.image.blit(self.image, self.rect)
-		
+
         if self.hp <= 0:
             self.kill()
 
@@ -91,10 +91,10 @@ class BaseObject(pygame.sprite.Sprite):
         return pressed
 
     def getLifeBar(self):
-        life = (self.max_hp - (self.max_hp - self.hp)) / float(self.max_hp)
+        life = (self.maxHP- (self.maxHP- self.hp)) / float(self.maxHP)
         if life > 0: return life
         else: return 0
-        
+
     def getEnemyDistance(self, enemy):
         if enemy != None: return math.sqrt((self.trueX - enemy.trueX) **2 + (self.trueY - enemy.trueY)**2)
         else: return None
@@ -125,7 +125,7 @@ class Building(BaseObject):
         self._layer = 3
         self.type = (self.ID_BUILDING,)
         self.build_timer = 0
-        self.build_speed = 1
+        self.build_speed = 0.5
         self.unit_trained = None
         self.creation_point = creation_point
         self.target_point = target_point
@@ -136,9 +136,9 @@ class Building(BaseObject):
         if self.unit_trained != None:
             self.build_timer += self.build_speed
             if self.build_timer > 200:
-                for unit in self.unit_trained:  
-                    newUnit = unit(self.creation_point[0],self.creation_point[1],self.owner)
-                    newUnit.attack_move(self.target_point)
+                for i, unit in enumerate(self.unit_trained):
+                    newUnit = unit(self.creation_point[0] + ((i%3)-1)*30,self.creation_point[1],self.owner)
+                    newUnit.attack_move((self.target_point[0] + ((i%3)-1)*30, self.target_point[1]))
                 self.build_timer = 0
 
 class Unit(BaseObject):
@@ -154,7 +154,7 @@ class Unit(BaseObject):
 
     def update(self, seconds):
         BaseObject.update(self,seconds)
-        if self.attack_timer <= 30: self.attack_timer += self.attack_speed
+        if self.attack_timer <= 30: self.attack_timer += self.atSpeed
         if self.action == self.ID_STOP:
             self.target_enemy = self.getNewEnemy()
             if self.target_enemy == None:
@@ -245,7 +245,7 @@ class Hero(Unit):
         self.level = 1
         self.maxLevel = 25
         self.exp = 0
-        self.expPerLevel = range(self.maxLevel)
+        self.expPerLevel = range(self.maxLevel+1)
         self.skillPoints = 1
         self.atrPoints = 1
         self.atrPointsBonus = [0,0,0,0,0]
@@ -256,7 +256,9 @@ class Hero(Unit):
 
         # Calculate Exp needed per level and Atribute Gain per level
         for lv in range(self.maxLevel):
-            self.expPerLevel[lv] = 100 + 25*lv
+            self.expPerLevel[lv] = 75 + 25*lv
+        self.expPerLevel[self.maxLevel] = 0
+
         for at in range(len(self.atrIncrement)):
             self.atrIncrement[at] = self.initialAtributes[at] * 0.1
 
@@ -273,7 +275,7 @@ class Hero(Unit):
             self.exp -= self.expPerLevel[self.level]
             self.level += 1
             self.atrPoints += 1
-            if self.level in self.extraAtrPoint:
+            if self.level in self.extraAtrPoints:
                 self.atrPoints += 1
             else:
                 self.skillPoints += 1
@@ -285,11 +287,27 @@ class Hero(Unit):
         for atr in range(len(self.atributes)):
             self.atributes[atr] = self.initialAtributes[atr] + self.atrIncrement[atr]*(self.level-1) + self.atrPointsBonus[atr] + itemAtrBonus[atr] + modifierAtrBonus[atr]
 
-        self.max_hp = 100 + self.atributes[0]*20 + itemStatsBonus[0] + modifierStatsBonus[0]  
-        self.speed = self.initialSpeed + itemStatsBonus[10] + modifierStatsBonus[10]  
+        self.maxHP = self.atributes[0]*10 + itemStatsBonus[0] + modifierStatsBonus[0]
+        self.hpReg = self.atributes[0]*0.0005 + itemStatsBonus[1] + modifierStatsBonus[1]
+        self.maxPM = self.atributes[1]*5 + itemStatsBonus[2] + modifierStatsBonus[2]
+        self.pmReg = self.atributes[1]*0.0005 + itemStatsBonus[3] + modifierStatsBonus[3]
+        self.damage = self.atributes[2] + itemStatsBonus[4] + modifierStatsBonus[4]
+        self.phRes = self.atributes[2]*0.002 + itemStatsBonus[5] + modifierStatsBonus[5]
+        self.atSpeed = 1 + self.atributes[3]*0.02 + itemStatsBonus[6] + modifierStatsBonus[6]
+        self.dodge = self.atributes[3]*0.002 + itemStatsBonus[7] + modifierStatsBonus[7]
+        self.power = self.atributes[4] + itemStatsBonus[8] + modifierStatsBonus[8]
+        self.maRes = self.atributes[4]*0.002 + itemStatsBonus[9] + modifierStatsBonus[9]
+
+        self.speed = self.initialSpeed + itemStatsBonus[10] + modifierStatsBonus[10]
+        self.range = self.initialRange + itemStatsBonus[11] + modifierStatsBonus[11]
+        self.critic = itemStatsBonus[12] + modifierStatsBonus[12]
+        self.atLeech = itemStatsBonus[13] + modifierStatsBonus[13]
+        self.maLeech = itemStatsBonus[14] + modifierStatsBonus[14]
+        self.antiCC = itemStatsBonus[15] + modifierStatsBonus[15]
+        self.cdr = itemStatsBonus[16] + modifierStatsBonus[16]
 
     def calculateItemBonus(self):
-        return (0,0,0,0,0) , (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-    
+        return (0,0,0,0,0) , (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+
     def calculateModifierBonus(self):
-        return (0,0,0,0,0) , (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+        return (0,0,0,0,0) , (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)

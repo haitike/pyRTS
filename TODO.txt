@@ -1,18 +1,40 @@
-Fix the "dance" sprite draw while moving.
+Improved Attack System with "event" indepent from the animations.
+---> After this: Gold, EXP wins. LifeSteal, dodge, critic, etc.
+
+Hero Section in the Infobar.
+"Hero" atribute in each player.
+
+Atributes to Implement:
+-> PM, PMReg, LifeSteal, dodge, Critic, MagResist,  Spell Vampire, CDR, AntiCC
+Implement -> Mana Bars!
+New Classes: PV Bars, PM Bars, Selection Circles. (with _layers)
+Minions RetroImplementation:
+-> PM, PMReg, LifeSteal, dodge, Critic, MagResist
+
+Optimice UpdateStats in heroes:
+- Check Items Bonus only when change
+- check atrPoints only at level up or atrpoint waste
+- check modifiers only at begin or end of each one
+- etc.
+
+Implement "Inataccable" (100% Physical Resist) "Inmune to magic" (100% Magic Resist) "Invulnerable" (Both)
+Basic Replay System.
+Basic Start Screen System (play, watch replay, exit)
+Select your Hero Screen before "play"
+
+Collision and no unit pass trhought.
 Fix the bug when you move a unit to "Top-Left Corner" the sprite decolours.
 Load Image function using "os.path", etc, with the folder "data", try, etc. (A sound function too)
-Collision and no unit pass trhought.
 You can select units from all players, enemies or not (Red Circle in enemies)
 Vision Fog
 Attack: Calcule range distances to enemy sides, not to center (useful for big targets)
-4 facing angles (full angle slows the game)
-Angle variable in classes
+4 facing angles [8-angles better?] (full angle slows the game) --> Angle variable in classes
 dont "move" in the ID_Attack State when the unit is chasing (temporal fix for the facing angle).
+Stop and Hold Position Keys and States
 Attack Move: Continue moving to the point after kill all the units in range.
 Attack Move: Continue moving to the point is the unit you are chasing go out of range
 Passive Attack (While Stopped) shouldnt ignore collisions.
-Improved Move the camera clicking in the minimap.
-Backkgroup move, update with allgroup.clear.
-Use Seconds in the Sprite Updates for Stuff.
-Text, LifeBar and SelectionCircles Classes, with _layers.
+Improved Move the camera clicking in the minimap ( no more black sections)
+Use Seconds in the Sprite Updates for Time Stuff.
 Improved Camera (Positive variables. Direct convertion with the map)
+Fix the "dance" sprite draw while moving. Improved!!!

@@ -40,7 +40,7 @@ class Attack(Animation):
         self.damage = damage
         self.target_unit = target_unit
         self.damage_status = 0  # 0: No Damage  1: After-damage Animation 2: Number Animation
-        self.hit = self.damage * (1.0 - self.target_unit.armor)
+        self.hit = self.damage * (1.0 - self.target_unit.phRes)
         self.duration = attack_range / self.speed
 
         # Path Calculation

@@ -59,7 +59,7 @@ def main():
 
     # Iniciate the text
     text1 = Text("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold", players[activePlayer].color,(10,0))
-    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "L: LevelUp", "Space: Reset Camera" , "ESC: Cancel Order", "CONTROL: Multi-Selection"]):
+    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "L: Win 100 EXP (hacks)", "Space: Reset Camera" , "ESC: Cancel Order", "CONTROL: Multi-Selection"]):
         Text(text, (255,255,255),(game_data.width-250,0+i*20))
 
     # Initial Units
@@ -67,14 +67,10 @@ def main():
     Mineral(350,400,players[0])
     Mineral(750,280,players[0])
     Mineral(750,400,players[0])
-    Minion(450,200,players[1])
-    RangedMinion(650,200,players[1])
-    Minion(450,700,players[2])
-    RangedMinion(650,700,players[2])
     Nexus(550,150,players[3],(550,200),(550,1300))
-    Turret(650,350,players[3])
+    Turret(550,210,players[3])
     Nexus(550,1250,players[4],(550,1200),(550,100))
-    Turret(650,1150,players[4])
+    Turret(550,1190,players[4])
     Tank(650, 300,players[1])
 
     # Main Loop
@@ -142,7 +138,7 @@ def main():
                     if event.key == pygame.K_l:
                         for unit in players[activePlayer].unitgroup:
                             if unit.ID_HERO in unit.type and unit.selected == True:
-                                unit.level += 1
+                                unit.exp += 100
 
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:

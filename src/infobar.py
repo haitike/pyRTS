@@ -4,7 +4,7 @@ from units import Unit
 import game_data, groups
 
 # Sprite _Layers
-#  8) Infobar 
+#  8) Infobar
 #  9) Minimap | SelectionBox | HeroBox
 
 class Infobar(sprite.Sprite):
@@ -79,43 +79,43 @@ class SelectionBox(sprite.Sprite):
         self.rect.bottomleft = (game_data.width - game_data.selectionbox_width, game_data.height)
         self.text = []
         for x in range(6): self.text.append(Text("", game_data.infobar_fontcolor, (self.rect.left, self.rect.top + x*20)))
-        
+
     def paintbox(self):
         self.image.fill(game_data.selectionbox_color)
         draw.rect(self.image, game_data.selectionbox_bordercolor, (0,0, game_data.selectionbox_width, game_data.selectionbox_height),1)
-        
+
     def update(self, seconds):
         self.paintbox()
         selectedUnits = self.getSelectedUnits()
         if len(selectedUnits) == 1:
             if Unit.ID_HERO in selectedUnits[0].type:
-                self.text[0].newmsg(selectedUnits[0].name + " (Level: " + str(selectedUnits[0].level) + ")")
+                self.text[0].newmsg(selectedUnits[0].name + " (Lv: " + str(selectedUnits[0].level) + ")("+str(selectedUnits[0].exp)+"/"+str(selectedUnits[0].expPerLevel[selectedUnits[0].level])+")")
                 self.text[1].newmsg("Vitality: "+str(int(selectedUnits[0].atributes[0])))
                 self.text[2].newmsg("Energy: "+str(int(selectedUnits[0].atributes[1])))
                 self.text[3].newmsg("Strength: "+str(int(selectedUnits[0].atributes[2])))
                 self.text[4].newmsg("Dextery: "+str(int(selectedUnits[0].atributes[3])))
-                self.text[5].newmsg("Inteligence: "+str(int(selectedUnits[0].atributes[4])))            
+                self.text[5].newmsg("Inteligence: "+str(int(selectedUnits[0].atributes[4])))
 
             else:
                 self.text[0].newmsg(selectedUnits[0].name)
-                self.text[1].newmsg("HP: "+str(int(selectedUnits[0].hp))+" / "+str(selectedUnits[0].max_hp))
+                self.text[1].newmsg("HP: "+str(int(selectedUnits[0].hp))+" / "+str(selectedUnits[0].maxHP))
                 self.text[2].newmsg("Speed: "+str(selectedUnits[0].speed))
                 self.text[3].newmsg("Damage: "+str(selectedUnits[0].damage))
-                self.text[4].newmsg("Armor: "+str(selectedUnits[0].armor*100)+"%")
-                self.text[5].newmsg("Attack Speed: "+str(selectedUnits[0].attack_speed))        
-            
+                self.text[4].newmsg("phRes: "+str(selectedUnits[0].phRes*100)+"%")
+                self.text[5].newmsg("Attack Speed: "+str(selectedUnits[0].atSpeed))
+
 
         else:
             for x in self.text:
                 x.newmsg("")
             if len(selectedUnits) > 1: self.text[0].newmsg("Units Selected: "+str(len(selectedUnits)))
-        
+
     def getSelectedUnits(self):
         selected = []
         for unit in groups.unitgroup:
             if unit.selected == True:
                 selected.append(unit)
         return selected
-    
+
 class HeroBox():
     pass

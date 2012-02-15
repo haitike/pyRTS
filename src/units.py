@@ -6,11 +6,11 @@ class Minion(Unit):
         self.image_file = tools.filepath("minion.png")
         self.id = self.ID_MINION
         self.name = "Minion"
-        self.max_hp = 20
+        self.maxHP = 160
         self.speed = 2.5
-        self.damage = 5
+        self.damage = 8
         self.range = 45
-        self.armor = 0.01
+        self.phRes = 0.01
 
         self.unit_init()
 
@@ -21,11 +21,11 @@ class RangedMinion(Unit):
         self.id = self.ID_RANGEDMINION
         self.name = "Ranged Minion"
         self.AttackAnimation = RangedMinionAttack
-        self.max_hp = 16
-        self.speed = 2
-        self.damage = 3
+        self.maxHP = 100
+        self.speed = 2.1
+        self.damage = 5
         self.range = 120
-        self.attack_speed = 1.2
+        self.atSpeed = 1.2
 
         self.unit_init()
 
@@ -37,9 +37,9 @@ class Nexus(Building):
         self.size = 5
         self.id = self.ID_NEXUS
         self.name = "Nexus"
-        self.max_hp = 250
-        self.armor = 0.2
-        self.unit_trained = [Minion, RangedMinion]
+        self.maxHP = 1500
+        self.phRes = 0.3
+        self.unit_trained = [Minion, Minion, Minion, RangedMinion, RangedMinion, RangedMinion]
 
         self.unit_init()
 
@@ -53,16 +53,17 @@ class Turret(Building):
         self.image_file =  tools.filepath("turret.png")
         self.id = self.ID_TURRET
         self.name = "Turret"
-        self.max_hp = 300
-        self.armor = 0.25
-        self.damage = 20
+        self.maxHP = 1200
+        self.phRes = 0.20
+        self.damage = 30
+        self.atSpeed = 2
         self.vision = self.range = 200
 
         self.unit_init()
 
     def update(self, seconds):
         BaseObject.update(self,seconds)
-        if self.attack_timer <= 30: self.attack_timer += self.attack_speed
+        if self.attack_timer <= 30: self.attack_timer += self.atSpeed
         self.target_enemy = self.getNewEnemy()
         if self.target_enemy != None:
             if self.attack_timer > 30:
