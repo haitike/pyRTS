@@ -29,6 +29,10 @@ class BaseObject(pygame.sprite.Sprite):
         self.image_file = tools.filepath("placeholder.png")
         self._layer = 2
 
+        # Bountys
+        self.bountyExp = 0
+        self.bountyGold = 0
+
         # Unit Tecnical Stuff
         self.trueX = float(startx)
         self.trueY = float(starty)
@@ -75,6 +79,7 @@ class BaseObject(pygame.sprite.Sprite):
 
         if self.hp <= 0:
             self.kill()
+            pygame.event.post(pygame.event.Event(pygame.USEREVENT))
 
     def changeImage(self,image_file):
         self.base_image = pygame.image.load(image_file)
@@ -246,6 +251,8 @@ class Hero(Unit):
         self.maxLevel = 25
         self.exp = 0
         self.expPerLevel = range(self.maxLevel+1)
+        self.bountyExp = range(self.maxLevel+1)
+        self.bountyGold = range(self.maxLevel+1)
         self.skillPoints = 1
         self.atrPoints = 1
         self.atrPointsBonus = [0,0,0,0,0]
@@ -254,14 +261,18 @@ class Hero(Unit):
         self.items = (None,None,None,None,None,None,None,None)
         self.modifiers = []
 
-        # Calculate Exp needed per level and Atribute Gain per level
+        # Bountys for being killed
+        self.bountyExp = 20
+        self.bountyGold = 15
+
+        # Calculate Exp needed to level up
         for lv in range(self.maxLevel):
             self.expPerLevel[lv] = 75 + 25*lv
         self.expPerLevel[self.maxLevel] = 0
 
+        #Calculate the Atribute Gain each level
         for at in range(len(self.atrIncrement)):
             self.atrIncrement[at] = self.initialAtributes[at] * 0.1
-
         self.updateStats()
 
     def update(self, seconds):
@@ -279,6 +290,10 @@ class Hero(Unit):
                 self.atrPoints += 1
             else:
                 self.skillPoints += 1
+
+            # You give more bounty to enemies
+            self.bountyExp += 8
+            self.bountyGold += 5
 
     def updateStats(self):
         itemAtrBonus, itemStatsBonus = self.calculateItemBonus()

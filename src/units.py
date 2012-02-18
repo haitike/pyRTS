@@ -11,6 +11,8 @@ class Minion(Unit):
         self.damage = 8
         self.range = 45
         self.phRes = 0.01
+        self.bountyExp = 8
+        self.bountyGold = 3
 
         self.unit_init()
 
@@ -21,11 +23,13 @@ class RangedMinion(Unit):
         self.id = self.ID_RANGEDMINION
         self.name = "Ranged Minion"
         self.AttackAnimation = RangedMinionAttack
-        self.maxHP = 100
-        self.speed = 2.1
+        self.maxHP = 90
+        self.speed = 2.2
         self.damage = 5
         self.range = 120
         self.atSpeed = 1.2
+        self.bountyExp = 5
+        self.bountyGold = 2
 
         self.unit_init()
 
@@ -58,7 +62,7 @@ class Turret(Building):
         self.damage = 30
         self.atSpeed = 2
         self.vision = self.range = 200
-
+        self.bountyGold = 80
         self.unit_init()
 
     def update(self, seconds):
