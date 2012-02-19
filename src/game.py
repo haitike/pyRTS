@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # GPL3: http://www.gnu.org/licenses/gpl-3.0.html
-GAME_NAME = "PyRTS "
-VERSION = "0.26"
 
 import tools, game_data, groups
 from infobar import *
@@ -11,6 +9,8 @@ from player import Player
 from text import Text
 import pygame, sys
 
+GAME_NAME = "Open-ARTS "
+VERSION = "0.27"
 SELECTION_EXTRAX, SELECTION_EXTRAY = 20, 20
 MOUSE_CURSOR1 = None
 MOUSE_CURSOR2 = (8, 8), (4,4), (24, 24, 24, 231, 231, 24, 24, 24), (0, 0, 0, 0, 0, 0, 0, 0)
@@ -180,6 +180,16 @@ def main():
 
     replay_list.append("quit")
     print replay_list
+    print pygame.event.Event
     pygame.quit()
 
-if __name__ == '__main__': main()
+class Game():
+    def __init__(self):
+        self.running = True
+
+    def run(self):
+        pygame.init()
+        while (self.running):
+            self.running = False
+            print "coso"
+        pygame.quit()
