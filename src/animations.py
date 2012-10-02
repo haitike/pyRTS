@@ -74,12 +74,12 @@ class Attack(Animation):
         else:
             self.trueY -= 1.5
 
-class MinionAttack(Attack):
-    image_file = tools.filepath("minion_attack.png")
+class WorkerAttack(Attack):
+    image_file = tools.filepath("worker_attack.png")
     speed = 3.5
     duration_after_hit = 6.0
 
-class RangedMinionAttack(Attack):
+class RangedAttack(Attack):
     image_file = tools.filepath("bullet.png")
     speed = 8.0
     duration_after_hit = 1.0

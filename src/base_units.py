@@ -4,7 +4,7 @@ import tools, game_data, groups
 from animations import *
 
 # Sprite _Layers
-#  2) Blockers/Obtacles  3) Buildings  4) Units   5) Hero
+#  2) Blockers/Obtacles  3) Buildings  4) Units
 
 class BaseObject(pygame.sprite.Sprite):
 
@@ -12,14 +12,14 @@ class BaseObject(pygame.sprite.Sprite):
     ID_STOP, ID_MOVE, ID_ATTACK, ID_ATTACK_MOVE = range(4)
 
     # UNIT TYPE IDS
-    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF, ID_HERO  = range(4)
+    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF  = range(3)
 
     # UNIT IDS
     ID_MINERAL = 0
     ID_NEXUS = 20
     ID_TURRET = 21
-    ID_MINION = 50
-    ID_RANGEDMINION = 51
+    ID_WORKER = 50
+    ID_RANGED = 51
     ID_TANK = 80
 
     # ATTACK DAMAGE TYPES
@@ -28,10 +28,6 @@ class BaseObject(pygame.sprite.Sprite):
     def __init__(self, startx,starty,owner=None):
         self.image_file = tools.filepath("placeholder.png")
         self._layer = 2
-
-        # Bountys
-        self.bountyExp = 0
-        self.bountyGold = 0
 
         # Unit Tecnical Stuff
         self.trueX = float(startx)
@@ -136,21 +132,11 @@ class Building(BaseObject):
         self.target_point = target_point
         self.size = 3
 
-    def update(self,seconds):
-        BaseObject.update(self,seconds)
-        if self.unit_trained != None:
-            self.build_timer += self.build_speed
-            if self.build_timer > 200:
-                for i, unit in enumerate(self.unit_trained):
-                    newUnit = unit(self.creation_point[0] + ((i%3)-1)*30,self.creation_point[1],self.owner)
-                    newUnit.attack_move((self.target_point[0] + ((i%3)-1)*30, self.target_point[1]))
-                self.build_timer = 0
-
 class Unit(BaseObject):
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
         self._layer = 4
-        self.AttackAnimation = MinionAttack
+        self.AttackAnimation = WorkerAttack
         self.type = (self.ID_UNIT,)
         self.target_location = self.trueX, self.trueY
         self.attack_timer = 30
@@ -231,98 +217,3 @@ class Unit(BaseObject):
         self.target_location = target
         self.move(target,3)
         self.action = self.ID_ATTACK_MOVE
-
-class Hero(Unit):
-    initialAtributes = (15,15,15,15,15) # Vitality, Energy, Strength, Dextery, Inteligence
-    initialSpeed = 3
-    initialRange = 50
-    isMelee = True
-    attackType = Unit.ID_SLASHING
-
-    def __init__(self, startx,starty,owner=0):
-        Unit.__init__(self,startx,starty,owner)
-        self._layer = 5
-        self.type = (self.ID_HERO , self.ID_UNIT)
-        self.size = 4
-        self.vision = 300
-
-        self.atributes = list(self.initialAtributes)
-        self.level = 1
-        self.maxLevel = 25
-        self.exp = 0
-        self.expPerLevel = range(self.maxLevel+1)
-        self.bountyExp = range(self.maxLevel+1)
-        self.bountyGold = range(self.maxLevel+1)
-        self.skillPoints = 1
-        self.atrPoints = 1
-        self.atrPointsBonus = [0,0,0,0,0]
-        self.extraAtrPoints = (23,25)
-        self.atrIncrement = list(self.initialAtributes)
-        self.items = (None,None,None,None,None,None,None,None)
-        self.modifiers = []
-
-        # Bountys for being killed
-        self.bountyExp = 20
-        self.bountyGold = 15
-
-        # Calculate Exp needed to level up
-        for lv in range(self.maxLevel):
-            self.expPerLevel[lv] = 75 + 25*lv
-        self.expPerLevel[self.maxLevel] = 0
-
-        #Calculate the Atribute Gain each level
-        for at in range(len(self.atrIncrement)):
-            self.atrIncrement[at] = self.initialAtributes[at] * 0.1
-        self.updateStats()
-
-    def update(self, seconds):
-        Unit.update(self,seconds)
-        if self.level < self.maxLevel:
-            self.checkLevelUp()
-        self.updateStats()
-
-    def checkLevelUp(self):
-        if self.exp >= self.expPerLevel[self.level]:
-            self.exp -= self.expPerLevel[self.level]
-            self.level += 1
-            self.atrPoints += 1
-            if self.level in self.extraAtrPoints:
-                self.atrPoints += 1
-            else:
-                self.skillPoints += 1
-
-            # You give more bounty to enemies
-            self.bountyExp += 8
-            self.bountyGold += 5
-
-    def updateStats(self):
-        itemAtrBonus, itemStatsBonus = self.calculateItemBonus()
-        modifierAtrBonus,modifierStatsBonus = self.calculateModifierBonus()
-
-        for atr in range(len(self.atributes)):
-            self.atributes[atr] = self.initialAtributes[atr] + self.atrIncrement[atr]*(self.level-1) + self.atrPointsBonus[atr] + itemAtrBonus[atr] + modifierAtrBonus[atr]
-
-        self.maxHP = self.atributes[0]*10 + itemStatsBonus[0] + modifierStatsBonus[0]
-        self.hpReg = self.atributes[0]*0.0005 + itemStatsBonus[1] + modifierStatsBonus[1]
-        self.maxPM = self.atributes[1]*5 + itemStatsBonus[2] + modifierStatsBonus[2]
-        self.pmReg = self.atributes[1]*0.0005 + itemStatsBonus[3] + modifierStatsBonus[3]
-        self.damage = self.atributes[2] + itemStatsBonus[4] + modifierStatsBonus[4]
-        self.phRes = self.atributes[2]*0.002 + itemStatsBonus[5] + modifierStatsBonus[5]
-        self.atSpeed = 1 + self.atributes[3]*0.02 + itemStatsBonus[6] + modifierStatsBonus[6]
-        self.dodge = self.atributes[3]*0.002 + itemStatsBonus[7] + modifierStatsBonus[7]
-        self.power = self.atributes[4] + itemStatsBonus[8] + modifierStatsBonus[8]
-        self.maRes = self.atributes[4]*0.002 + itemStatsBonus[9] + modifierStatsBonus[9]
-
-        self.speed = self.initialSpeed + itemStatsBonus[10] + modifierStatsBonus[10]
-        self.range = self.initialRange + itemStatsBonus[11] + modifierStatsBonus[11]
-        self.critic = itemStatsBonus[12] + modifierStatsBonus[12]
-        self.atLeech = itemStatsBonus[13] + modifierStatsBonus[13]
-        self.maLeech = itemStatsBonus[14] + modifierStatsBonus[14]
-        self.antiCC = itemStatsBonus[15] + modifierStatsBonus[15]
-        self.cdr = itemStatsBonus[16] + modifierStatsBonus[16]
-
-    def calculateItemBonus(self):
-        return (0,0,0,0,0) , (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-
-    def calculateModifierBonus(self):
-        return (0,0,0,0,0) , (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)

@@ -1,8 +1,4 @@
 Improved Attack System with "event" indepent from the animations.
----> After this: Gold, EXP wins. LifeSteal, dodge, critic, etc.
-
-Hero Section in the Infobar.
-"Hero" atribute in each player.
 
 Atributes to Implement:
 -> PM, PMReg, LifeSteal, dodge, Critic, MagResist,  Spell Vampire, CDR, AntiCC

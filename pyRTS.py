@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # GPL3: http://www.gnu.org/licenses/gpl-3.0.html
-GAME_NAME = "Open-ARTS"
-VERSION = " 0.28"
+GAME_NAME = "pyRTS"
+VERSION = " 0.2"
 
 from src import game
 

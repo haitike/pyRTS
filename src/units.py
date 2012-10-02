@@ -1,35 +1,47 @@
 from base_units import *
 
-class Minion(Unit):
+class Worker(Unit):
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
-        self.image_file = tools.filepath("minion.png")
-        self.id = self.ID_MINION
-        self.name = "Minion"
+        self.image_file = tools.filepath("worker.png")
+        self.id = self.ID_WORKER
+        self.name = "Worker"
         self.maxHP = 160
         self.speed = 2.5
         self.damage = 8
         self.range = 45
         self.phRes = 0.01
-        self.bountyExp = 8
-        self.bountyGold = 3
 
         self.unit_init()
 
-class RangedMinion(Unit):
+class Ranged(Unit):
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
-        self.image_file = tools.filepath("ranged_minion.png")
-        self.id = self.ID_RANGEDMINION
-        self.name = "Ranged Minion"
-        self.AttackAnimation = RangedMinionAttack
+        self.image_file = tools.filepath("ranged.png")
+        self.id = self.ID_RANGED
+        self.name = "Ranged"
+        self.AttackAnimation = RangedAttack
         self.maxHP = 90
         self.speed = 2.2
         self.damage = 5
         self.range = 120
         self.atSpeed = 1.2
-        self.bountyExp = 5
-        self.bountyGold = 2
+
+        self.unit_init()
+        
+
+class Tank(Unit):
+    def __init__(self, startx,starty,owner):
+        Unit.__init__(self,startx,starty,owner)
+        self.image_file = tools.filepath("tank.png")
+        self.id = self.ID_TANK
+        self.name = "Ranged"
+        self.AttackAnimation = RangedAttack
+        self.maxHP = 175
+        self.speed = 1.8
+        self.damage = 15
+        self.range = 120
+        self.atSpeed = 0.6
 
         self.unit_init()
 
@@ -43,7 +55,7 @@ class Nexus(Building):
         self.name = "Nexus"
         self.maxHP = 1500
         self.phRes = 0.3
-        self.unit_trained = [Minion, Minion, Minion, RangedMinion, RangedMinion, RangedMinion]
+        self.unit_trained = [Worker, Worker, Worker, Ranged, Ranged, Ranged]
 
         self.unit_init()
 
@@ -53,7 +65,7 @@ class Turret(Building):
 
         self.attack_timer = 30
 
-        self.AttackAnimation = RangedMinionAttack
+        self.AttackAnimation = RangedAttack
         self.image_file =  tools.filepath("turret.png")
         self.id = self.ID_TURRET
         self.name = "Turret"
@@ -62,7 +74,6 @@ class Turret(Building):
         self.damage = 30
         self.atSpeed = 2
         self.vision = self.range = 200
-        self.bountyGold = 80
         self.unit_init()
 
     def update(self, seconds):

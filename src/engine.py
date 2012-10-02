@@ -3,7 +3,6 @@
 import tools, game_data, groups
 from infobar import *
 from units import *
-from heroes import *
 from player import Player
 from text import Text
 import pygame, sys
@@ -56,7 +55,7 @@ def main():
 
     # Iniciate the text
     text1 = Text("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold", players[activePlayer].color,(10,0))
-    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack", "L: Win 100 EXP (hacks)", "Space: Reset Camera" , "ESC: Cancel Order", "CONTROL: Multi-Selection"]):
+    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack",  "Space: Reset Camera" , "ESC: Cancel Order", "CONTROL: Multi-Selection"]):
         Text(text, (255,255,255),(game_data.width-250,0+i*20))
 
     # Initial Units
@@ -132,11 +131,6 @@ def main():
                             if unit.ID_UNIT in unit.type and unit.selected == True:
                                 pygame.mouse.set_cursor(*MOUSE_CURSOR2)
                                 attack = True
-                    if event.key == pygame.K_l:
-                        for unit in players[activePlayer].unitgroup:
-                            if unit.ID_HERO in unit.type and unit.selected == True:
-                                unit.exp += 100
-
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pos()[1] < (game_data.height - game_data.infobar_height):
