@@ -41,33 +41,29 @@ def main():
 
     # Players
     players = [Player("Neutral"),
-               Player("Good Guys", True, 50, (0,0,255)),
-               Player("The Evil", True, 50, (255,0,0)),
-               Player("Good Minions",True, 0, (128,0,128)),
-               Player("Bad Minions",True, 0, (255,153,0))]
-    players[1].enemies = [players[2], players[4]]
-    players[2].enemies = [players[1], players[3]]
-    players[3].enemies = [players[2], players[4]]
-    players[4].enemies = [players[1], players[3]]
+               Player("Good Guys", True, 750, (0,0,255)),
+               Player("The Evil", True, 750, (255,0,0)),]
+    players[1].enemies = [players[2]]
+    players[2].enemies = [players[1]]
 
     # Iniciate the Minimap
     infobar = Infobar()
 
     # Iniciate the text
-    text1 = Text("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold", players[activePlayer].color,(10,0))
-    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack",  "Space: Reset Camera" , "ESC: Cancel Order", "CONTROL: Multi-Selection"]):
+    text1 = Text("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+" Mineral", players[activePlayer].color,(10,0))
+    for i, text in enumerate(["RightMouse: Move/Attack","MiddleMouse: Switch Player","A: Attack",  "Space: Reset Camera" , "CONTROL: Multi-Selection"]):
         Text(text, (255,255,255),(game_data.width-250,0+i*20))
 
     # Initial Units
-    Mineral(350,280,players[0])
-    Mineral(350,400,players[0])
-    Mineral(750,280,players[0])
-    Mineral(750,400,players[0])
-    Nexus(550,150,players[3],(550,200),(550,1300))
-    Turret(550,210,players[3])
-    Nexus(550,1250,players[4],(550,1200),(550,100))
-    Turret(550,1190,players[4])
-    Tank(650, 300,players[1])
+    Mineral(400,90,players[0])
+    Mineral(400,130,players[0])
+    Mineral(400,170,players[0])
+    Mineral(400,210,players[0])
+    Nexus(550,150,players[1])
+    Ranged(550, 200,players[1])
+    Tank(550, 750,players[1])
+    Nexus(550,1250,players[2])
+    Turret(550,1190,players[2])
 
     # Main Loop
     clock=pygame.time.Clock()
@@ -117,7 +113,7 @@ def main():
                     if event.button == 3:
                         if pygame.mouse.get_pos()[1] < (game_data.height - game_data.infobar_height):
                             for unit in players[activePlayer].unitgroup:
-                                if unit.selected == True and unit.ID_UNIT in unit.type:
+                                if unit.selected == True and unit.ID_UNIT in unit.types:
                                     unit.move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
                                     replay_list.append("move")
                                     for target in groups.unitgroup:
@@ -128,16 +124,31 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
                         for unit in players[activePlayer].unitgroup:
-                            if unit.ID_UNIT in unit.type and unit.selected == True:
+                            if unit.ID_UNIT in unit.types and unit.selected == True:
                                 pygame.mouse.set_cursor(*MOUSE_CURSOR2)
                                 attack = True
+                    if event.key == pygame.K_q:
+                        for unit in players[activePlayer].unitgroup:
+                            if unit.ID_BUILDING in unit.types and unit.action == unit.ID_STOP and unit.selected == True:
+                                if len(unit.training_list) > 0:
+                                    unit.train(players,  0)
+                    if event.key == pygame.K_w:
+                        for unit in players[activePlayer].unitgroup:
+                            if unit.ID_BUILDING in unit.types and unit.action == unit.ID_STOP and unit.selected == True:
+                                if len(unit.training_list) > 1:
+                                    unit.train(players,  1)
+                    if event.key == pygame.K_e:
+                        for unit in players[activePlayer].unitgroup:
+                            if unit.ID_BUILDING in unit.types and unit.action == unit.ID_STOP and unit.selected == True:
+                                if len(unit.training_list) > 2:
+                                    unit.train(players,  2)
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pos()[1] < (game_data.height - game_data.infobar_height):
                         if event.button == 1:
                             unit_in_cursor = False
                             for unit in players[activePlayer].unitgroup:
-                                if unit.selected == True and unit.ID_UNIT in unit.type:
+                                if unit.selected == True and unit.ID_UNIT in unit.types:
                                     for target in groups.unitgroup:
                                         if target.isPressed(pygame.mouse.get_pos()) and target != unit and target.targetable == True:
                                             unit.attack(target)
@@ -161,15 +172,16 @@ def main():
             if unit.targetable == True:
                 pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-7,unit.rect.width,3))
                 pygame.draw.rect(screen,unit.owner.color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
+                if unit.ID_BUILDING in unit.types and unit.action == unit.ID_TRAIN:
+                    pygame.draw.rect(screen,(0,255,0),(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getBuildingProgress(),5))
+
             if unit.selected == True:
                 pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
 
         font = pygame.font.Font(None, 25)
-        text1.newmsg("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].gold)+" Gold", players[activePlayer].color)
+        text1.newmsg("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+" Mineral", players[activePlayer].color)
         groups.allgroup.draw(screen)
         pygame.display.flip( ) #update the screen
 
     replay_list.append("quit")
-    print replay_list
-    print pygame.event.Event
     pygame.quit()

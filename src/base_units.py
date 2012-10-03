@@ -9,7 +9,7 @@ from animations import *
 class BaseObject(pygame.sprite.Sprite):
 
     # ACTIONS IDS
-    ID_STOP, ID_MOVE, ID_ATTACK, ID_ATTACK_MOVE = range(4)
+    ID_STOP, ID_MOVE, ID_ATTACK, ID_ATTACK_MOVE,  ID_TRAIN = range(5)
 
     # UNIT TYPE IDS
     ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF  = range(3)
@@ -20,7 +20,7 @@ class BaseObject(pygame.sprite.Sprite):
     ID_TURRET = 21
     ID_WORKER = 50
     ID_RANGED = 51
-    ID_TANK = 80
+    ID_TANK = 52
 
     # ATTACK DAMAGE TYPES
     ID_BLUDGEONING, ID_PIERCING, ID_SLASHING, ID_FIRE = range(4)
@@ -38,8 +38,7 @@ class BaseObject(pygame.sprite.Sprite):
         # Some Values
         self.owner = owner
         self.id = None
-        self.name = None
-        self.type = ()
+        self.types = ()
         self.selected = False
         self.targetable = True
         self.action = self.ID_STOP
@@ -116,33 +115,68 @@ class BaseObject(pygame.sprite.Sprite):
 class NeutralStuff(BaseObject):
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
-        self.type = (self.ID_NEUTRALSTUFF,)
+        self.types = (self.ID_NEUTRALSTUFF,)
         self.targetable = False
         self.size = 3
 
 class Building(BaseObject):
-    def __init__(self, startx,starty,owner,creation_point=None,target_point=None):
+
+    # Production
+    cost = 400
+    building_time = 1500.0
+
+    def __init__(self, startx,starty,owner):
         BaseObject.__init__(self,startx,starty,owner)
         self._layer = 3
-        self.type = (self.ID_BUILDING,)
+        self.types = (self.ID_BUILDING,)
         self.build_timer = 0
         self.build_speed = 0.5
-        self.unit_trained = None
-        self.creation_point = creation_point
-        self.target_point = target_point
+        self.training_list = []
+        self.training_unit = None
         self.size = 3
 
+    def update(self, seconds):
+        BaseObject.update(self,seconds)
+        if self.action == self.ID_STOP:
+            pass
+        if self.action == self.ID_TRAIN:
+            if self.building_progress <= 0:
+                self.training_unit(self.trueX,  self.trueY+self.rect.height , self.owner)
+                self.action = self.ID_STOP
+                self.training_unit = None
+            else:
+                self.building_progress -= 1
+
+    def train(self, players,  unit_index = 0):
+        self.training_unit = self.training_list[unit_index]
+        if self.owner.mineral >= self.training_unit.cost and self.action == self.ID_STOP:
+            self.building_progress = self.training_unit.building_time
+            self.action = self.ID_TRAIN
+            self.owner.mineral -= self.training_unit.cost
+            
+        else:
+            sound = pygame.mixer.Sound(tools.filepath("beep.wav"))
+            sound.play()
+
+    def getBuildingProgress(self):
+        return (self.training_unit.building_time - self.building_progress) / self.training_unit.building_time
+
 class Unit(BaseObject):
+    # Production
+    supply = 1
+    cost = 50
+    building_time = 100.0
+
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
         self._layer = 4
         self.AttackAnimation = WorkerAttack
-        self.type = (self.ID_UNIT,)
+        self.types = (self.ID_UNIT,)
         self.target_location = self.trueX, self.trueY
         self.attack_timer = 30
         self.target_enemy = None
         self.attack_move_location = self.trueX, self.trueY
-
+        
     def update(self, seconds):
         BaseObject.update(self,seconds)
         if self.attack_timer <= 30: self.attack_timer += self.atSpeed

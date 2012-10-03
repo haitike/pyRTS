@@ -11,13 +11,14 @@ class Game():
 
     def run(self):
         pygame.init()
-        screen = pygame.display.set_mode(game_data.WINDOW_SIZE)#, pygame.FULLSCREEN)
+        screen = pygame.display.set_mode(game_data.WINDOW_SIZE,  pygame.FULLSCREEN)#, pygame.FULLSCREEN)
         pygame.display.set_caption(self.name + self.version)
         menu = cMenu(50, 50, 20, 5, 'vertical', 100, screen,
-               [('Start Game', 1, None),
-                ('Watch Replay',  2, None),
-                ('Options',    3, None),
-                ('Exit',       4, None)])
+               [('Single Player', 1, None),
+                ('Multiplayer', 2, None),
+                ('Watch Replay',  3, None),
+                ('Options',    4, None),
+                ('Exit',       5, None)])
         menu.set_center(True, True)
         menu.set_alignment('center', 'center')
         state = 0
@@ -29,27 +30,32 @@ class Game():
                 pygame.event.post(pygame.event.Event(EVENT_CHANGE_STATE, key = 0))
                 prev_state = state
 
-            e = pygame.event.wait()
+            pygame.display.update(rect_list)
 
+            e = pygame.event.wait()
             if e.type == pygame.KEYDOWN or e.type == EVENT_CHANGE_STATE:
                 if state == 0:
                     rect_list, state = menu.update(e, state)
                 elif state == 1:
-                    print 'Start Game!'
+                    print 'Single Player!'
                     state = 0
-                    pygame.quit()
+                    self.running = False
                     engine.main()
                 elif state == 2:
-                    print 'Watch Replay!'
+                    print 'Multiplayer!'
                     state = 0
                 elif state == 3:
+                    print 'Watch Replay!'
+                    state = 0
+                elif state == 4:
                     print 'Options!'
                     state = 0
                 else:
                     print 'Exit!'
-                    pygame.quit()
-
+                    self.running = False
+            
             if e.type == pygame.QUIT:
-                pygame.quit()
+                self.running = False
 
-            pygame.display.update(rect_list)
+        
+        pygame.quit()

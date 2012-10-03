@@ -1,65 +1,81 @@
 from base_units import *
 
 class Worker(Unit):
+    name = "Worker"
+    supply = 1
+    cost = 50
+    building_time = 100.0
+    
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
         self.image_file = tools.filepath("worker.png")
         self.id = self.ID_WORKER
-        self.name = "Worker"
-        self.maxHP = 160
+        self.maxHP = 65
         self.speed = 2.5
-        self.damage = 8
+        self.damage = 6
         self.range = 45
         self.phRes = 0.01
-
+        
         self.unit_init()
 
 class Ranged(Unit):
+    name = "Ranged"
+    supply = 1
+    cost = 40
+    building_time = 100.0
+    
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
         self.image_file = tools.filepath("ranged.png")
         self.id = self.ID_RANGED
-        self.name = "Ranged"
         self.AttackAnimation = RangedAttack
-        self.maxHP = 90
+        self.maxHP = 50
         self.speed = 2.2
-        self.damage = 5
+        self.damage = 8
         self.range = 120
-        self.atSpeed = 1.2
+        self.atSpeed = 1.8
 
         self.unit_init()
         
 
 class Tank(Unit):
+    name = "Tank"
+    supply = 2
+    cost = 100
+    building_time = 170.0
+    
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
         self.image_file = tools.filepath("tank.png")
         self.id = self.ID_TANK
-        self.name = "Ranged"
         self.AttackAnimation = RangedAttack
-        self.maxHP = 175
+        self.maxHP = 125
         self.speed = 1.8
-        self.damage = 15
-        self.range = 120
+        self.damage = 20
+        self.range = 60
         self.atSpeed = 0.6
+        self.phRes = 0.1
 
         self.unit_init()
 
 class Nexus(Building):
-    def __init__(self, startx,starty,owner,creation_point,target_point):
-        Building.__init__(self,startx,starty,owner, creation_point, target_point)
+    name = "Nexus"
+    
+    def __init__(self, startx,starty,owner):
+        Building.__init__(self,startx,starty,owner)
 
         self.image_file =  tools.filepath("nexus.png")
         self.size = 5
         self.id = self.ID_NEXUS
-        self.name = "Nexus"
-        self.maxHP = 1500
+        self.maxHP = 600
         self.phRes = 0.3
-        self.unit_trained = [Worker, Worker, Worker, Ranged, Ranged, Ranged]
+        self.training_list = [Worker,  Ranged,  Tank]
 
         self.unit_init()
 
 class Turret(Building):
+    name = "Turret"
+    
     def __init__(self, startx,starty,owner):
         Building.__init__(self,startx,starty,owner)
 
@@ -68,11 +84,10 @@ class Turret(Building):
         self.AttackAnimation = RangedAttack
         self.image_file =  tools.filepath("turret.png")
         self.id = self.ID_TURRET
-        self.name = "Turret"
-        self.maxHP = 1200
+        self.maxHP = 300
         self.phRes = 0.20
-        self.damage = 30
-        self.atSpeed = 2
+        self.damage = 10
+        self.atSpeed = 1.6
         self.vision = self.range = 200
         self.unit_init()
 
@@ -87,11 +102,12 @@ class Turret(Building):
 
 
 class Mineral(NeutralStuff):
+    name = "Mineral"
+    
     def __init__(self, startx,starty,owner):
         NeutralStuff.__init__(self,startx,starty,owner)
 
         self.image_file = tools.filepath("mineral.png")
         self.id = self.ID_MINERAL
-        self.name = "Mineral"
 
         self.unit_init()
