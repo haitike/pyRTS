@@ -1,4 +1,3 @@
-Menu principal sin resetear la ventana. Organizar por Scenes de menu.
 Improved Attack System with "event" indepent from the animations.
 New Classes: PV Bars, PM Bars, Selection Circles. (with _layers)
 New atributes: PM, PMReg, LifeSteal, dodge, Critic, MagResist,  AntiCC
@@ -21,4 +20,4 @@ Improved Move the camera clicking in the minimap ( no more black sections)
 Use Seconds in the Sprite Updates for Time Stuff.
 Improved Camera (Positive variables. Direct convertion with the map)
 Fix the "dance" sprite draw while moving. Improved!!!
-Arreglar IDs actualmente heredados como variable interna (no constante) por todas las unidades. Malgasto y reduplicacion de datos.
+Menu principal sin resetear la ventana. Organizar por Scenes de menu.

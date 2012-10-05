@@ -2,28 +2,21 @@ import math
 import pygame
 import tools, game_data, groups
 from animations import *
+from ids import *
 
 # Sprite _Layers
 #  2) Blockers/Obtacles  3) Buildings  4) Units
 
 class BaseObject(pygame.sprite.Sprite):
 
-    # ACTIONS IDS
-    ID_STOP, ID_MOVE, ID_ATTACK, ID_ATTACK_MOVE,  ID_TRAIN = range(5)
+    # Name
+    name = "Undefined Unit"
 
-    # UNIT TYPE IDS
-    ID_UNIT, ID_BUILDING, ID_NEUTRALSTUFF  = range(3)
-
-    # UNIT IDS
-    ID_MINERAL = 0
-    ID_NEXUS = 20
-    ID_TURRET = 21
-    ID_WORKER = 50
-    ID_RANGED = 51
-    ID_TANK = 52
-
-    # ATTACK DAMAGE TYPES
-    ID_BLUDGEONING, ID_PIERCING, ID_SLASHING, ID_FIRE = range(4)
+    # Production
+    extra_max_supply = 0
+    supply_cost = 0
+    mineral_cost = 0
+    building_time = 0
 
     def __init__(self, startx,starty,owner=None):
         self.image_file = tools.filepath("placeholder.png")
@@ -41,7 +34,7 @@ class BaseObject(pygame.sprite.Sprite):
         self.types = ()
         self.selected = False
         self.targetable = True
-        self.action = self.ID_STOP
+        self.action = ID_STOP
 
         # Unit Atributes
         self.size = 2
@@ -115,20 +108,21 @@ class BaseObject(pygame.sprite.Sprite):
 class NeutralStuff(BaseObject):
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
-        self.types = (self.ID_NEUTRALSTUFF,)
+        self.types = (ID_NEUTRALSTUFF,)
         self.targetable = False
         self.size = 3
 
 class Building(BaseObject):
 
     # Production
-    cost = 400
+    mineral_cost = 400
     building_time = 1500.0
+    extra_max_supply = 0
 
     def __init__(self, startx,starty,owner):
         BaseObject.__init__(self,startx,starty,owner)
         self._layer = 3
-        self.types = (self.ID_BUILDING,)
+        self.types = (ID_BUILDING,)
         self.build_timer = 0
         self.build_speed = 0.5
         self.training_list = []
@@ -137,22 +131,22 @@ class Building(BaseObject):
 
     def update(self, seconds):
         BaseObject.update(self,seconds)
-        if self.action == self.ID_STOP:
+        if self.action == ID_STOP:
             pass
-        if self.action == self.ID_TRAIN:
+        if self.action == ID_TRAIN:
             if self.building_progress <= 0:
                 self.training_unit(self.trueX,  self.trueY+self.rect.height , self.owner)
-                self.action = self.ID_STOP
+                self.action = ID_STOP
                 self.training_unit = None
             else:
                 self.building_progress -= 1
 
     def train(self, players,  unit_index = 0):
         self.training_unit = self.training_list[unit_index]
-        if self.owner.mineral >= self.training_unit.cost and self.action == self.ID_STOP:
+        if self.owner.mineral >= self.training_unit.mineral_cost and self.training_unit.supply_cost <= (self.owner.max_supply - self.owner.supply)  and self.action == ID_STOP:
             self.building_progress = self.training_unit.building_time
-            self.action = self.ID_TRAIN
-            self.owner.mineral -= self.training_unit.cost
+            self.action = ID_TRAIN
+            self.owner.mineral -= self.training_unit.mineral_cost
             
         else:
             sound = pygame.mixer.Sound(tools.filepath("beep.wav"))
@@ -163,15 +157,15 @@ class Building(BaseObject):
 
 class Unit(BaseObject):
     # Production
-    supply = 1
-    cost = 50
+    supply_cost = 1
+    mineral_cost = 50
     building_time = 100.0
 
     def __init__(self, startx,starty,owner=0):
         BaseObject.__init__(self,startx,starty,owner)
         self._layer = 4
         self.AttackAnimation = WorkerAttack
-        self.types = (self.ID_UNIT,)
+        self.types = (ID_UNIT,)
         self.target_location = self.trueX, self.trueY
         self.attack_timer = 30
         self.target_enemy = None
@@ -180,7 +174,7 @@ class Unit(BaseObject):
     def update(self, seconds):
         BaseObject.update(self,seconds)
         if self.attack_timer <= 30: self.attack_timer += self.atSpeed
-        if self.action == self.ID_STOP:
+        if self.action == ID_STOP:
             self.target_enemy = self.getNewEnemy()
             if self.target_enemy == None:
                 self.moveX = 0
@@ -188,12 +182,12 @@ class Unit(BaseObject):
                 self.target_location = self.trueX, self.trueY
                 self.attack_move_location = self.trueX, self.trueY
             else:
-                self.action = self.ID_ATTACK
-        elif self.action == self.ID_MOVE:
+                self.action = ID_ATTACK
+        elif self.action == ID_MOVE:
             self.update_move()
-        elif self.action == self.ID_ATTACK:
+        elif self.action == ID_ATTACK:
             self.update_attack()
-        elif self.action == self.ID_ATTACK_MOVE:
+        elif self.action == ID_ATTACK_MOVE:
             self.target_enemy = self.getNewEnemy()
             if self.target_enemy == None:
                 self.update_move()
@@ -204,13 +198,13 @@ class Unit(BaseObject):
             for unit in groups.unitgroup:
                 if pygame.sprite.collide_rect(self, unit):
                     if self != unit:
-                        pass#self.action = self.ID_STOP
+                        pass#self.action = ID_STOP
                     else:
                         dlength = math.sqrt((self.trueX - self.target_location[0]) **2 + (self.trueY - self.target_location[1])**2)
                         if dlength < self.speed:
                             self.trueX = self.target_location[0]
                             self.trueY = self.target_location[1]
-                            self.action = self.ID_STOP
+                            self.action = ID_STOP
                         else:
                             self.trueX += self.moveX
                             self.trueY += self.moveY
@@ -225,8 +219,8 @@ class Unit(BaseObject):
             self.move((self.target_enemy.trueX, self.target_enemy.trueY), self.action)
             self.update_move()
         if self.target_enemy.alive() == False:
-            if self.action == self.ID_ATTACK_MOVE: self.target_location = self.attack_move_location
-            else: self.action = self.ID_STOP
+            if self.action == ID_ATTACK_MOVE: self.target_location = self.attack_move_location
+            else: self.action = ID_STOP
 
     def move(self,target, act_type=1): # 1 = Move
         self.action = act_type
@@ -244,10 +238,10 @@ class Unit(BaseObject):
 
     def attack(self,target_unit):
         self.target_enemy = target_unit
-        self.action = self.ID_ATTACK
+        self.action = ID_ATTACK
 
     def attack_move(self, target):
         self.attack_move_location = target
         self.target_location = target
         self.move(target,3)
-        self.action = self.ID_ATTACK_MOVE
+        self.action = ID_ATTACK_MOVE

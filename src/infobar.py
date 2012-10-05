@@ -1,6 +1,6 @@
 from pygame import sprite, Surface, draw
 from text import Text
-from units import Unit
+from ids import *
 import game_data, groups
 
 # Sprite _Layers
@@ -88,21 +88,21 @@ class SelectionBox(sprite.Sprite):
         self.paintbox()
         selectedUnits = self.getSelectedUnits()
         if len(selectedUnits) == 1:
-            if Unit.ID_BUILDING in selectedUnits[0].types:
+            if ID_BUILDING in selectedUnits[0].types:
                 trained = len(selectedUnits[0].training_list)
                 self.text[0].newmsg(selectedUnits[0].name)
                 self.text[1].newmsg("HP: "+str(int(selectedUnits[0].hp))+" / "+str(selectedUnits[0].maxHP))
-                self.text[2].newmsg("Defence: "+str(selectedUnits[0].phRes*100)+"%")
+                self.text[2].newmsg("defense: "+str(int(selectedUnits[0].phRes*100))+"%")
                 self.text[3].newmsg("")
                 self.text[4].newmsg("")
                 self.text[5].newmsg("")
-                if trained > 0: self.text[3].newmsg("Train(Q) : "+str(selectedUnits[0].training_list[0].name))
-                if trained > 1: self.text[4].newmsg("Train(W) : "+str(selectedUnits[0].training_list[1].name))
-                if trained > 2: self.text[5].newmsg("Train(E) : "+str(selectedUnits[0].training_list[2].name))
-            elif Unit.ID_UNIT in selectedUnits[0].types:
+                if trained > 0: self.text[3].newmsg("(Q) : "+str(selectedUnits[0].training_list[0].name) + " " + str(selectedUnits[0].training_list[0].mineral_cost) + "M / " + str(selectedUnits[0].training_list[0].supply_cost) + "S")
+                if trained > 1: self.text[4].newmsg("(W) : "+str(selectedUnits[0].training_list[1].name) + " " + str(selectedUnits[0].training_list[1].mineral_cost) + "M / " + str(selectedUnits[0].training_list[1].supply_cost) + "S")
+                if trained > 2: self.text[5].newmsg("(E) : "+str(selectedUnits[0].training_list[2].name) + " " + str(selectedUnits[0].training_list[2].mineral_cost) + "M / " + str(selectedUnits[0].training_list[2].supply_cost) + "S")
+            elif ID_UNIT in selectedUnits[0].types:
                 self.text[0].newmsg(selectedUnits[0].name)
                 self.text[1].newmsg("HP: "+str(int(selectedUnits[0].hp))+" / "+str(selectedUnits[0].maxHP))
-                self.text[2].newmsg("Defence: "+str(selectedUnits[0].phRes*100)+"%")
+                self.text[2].newmsg("defense: "+str(int(selectedUnits[0].phRes*100))+"%")
                 self.text[3].newmsg("Damage: "+str(selectedUnits[0].damage))
                 self.text[4].newmsg("Attack Speed: "+str(selectedUnits[0].atSpeed))
                 self.text[5].newmsg("Speed: "+str(selectedUnits[0].speed))

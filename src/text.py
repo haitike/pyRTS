@@ -5,7 +5,7 @@ import groups
 #  10) Text 
 
 class Text(sprite.Sprite):
-    """a pygame Sprite displaying text"""
+    """Pygame Sprite displaying text"""
     def __init__(self, msg="The Python Game Book", color=(0,0,0), topleft=(0,0)):
         self.groups = groups.allgroup
         self.topleft = topleft

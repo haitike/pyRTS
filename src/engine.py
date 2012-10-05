@@ -55,15 +55,21 @@ def main():
         Text(text, (255,255,255),(game_data.width-250,0+i*20))
 
     # Initial Units
-    Mineral(400,90,players[0])
-    Mineral(400,130,players[0])
-    Mineral(400,170,players[0])
-    Mineral(400,210,players[0])
-    Nexus(550,150,players[1])
-    Ranged(550, 200,players[1])
-    Tank(550, 750,players[1])
-    Nexus(550,1250,players[2])
-    Turret(550,1190,players[2])
+    Mineral(480,50,players[0])
+    Mineral(520,50,players[0])
+    Mineral(560,50,players[0])
+    Mineral(600,50,players[0])
+    Worker(520, 150,players[1])
+    Worker(560, 150,players[1])
+    Nexus(540,200,players[1])    
+
+    Mineral(480,1350,players[0])
+    Mineral(520,1350,players[0])
+    Mineral(560,1350,players[0])
+    Mineral(600,1350,players[0])
+    Worker(520, 1250,players[2])
+    Worker(560, 1250,players[2])
+    Nexus(540,1200,players[2]) 
 
     # Main Loop
     clock=pygame.time.Clock()
@@ -113,7 +119,7 @@ def main():
                     if event.button == 3:
                         if pygame.mouse.get_pos()[1] < (game_data.height - game_data.infobar_height):
                             for unit in players[activePlayer].unitgroup:
-                                if unit.selected == True and unit.ID_UNIT in unit.types:
+                                if unit.selected == True and ID_UNIT in unit.types:
                                     unit.move((event.pos[0] - game_data.camera[0],event.pos[1]  - game_data.camera[1]))
                                     replay_list.append("move")
                                     for target in groups.unitgroup:
@@ -124,22 +130,22 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
                         for unit in players[activePlayer].unitgroup:
-                            if unit.ID_UNIT in unit.types and unit.selected == True:
+                            if ID_UNIT in unit.types and unit.selected == True:
                                 pygame.mouse.set_cursor(*MOUSE_CURSOR2)
                                 attack = True
                     if event.key == pygame.K_q:
                         for unit in players[activePlayer].unitgroup:
-                            if unit.ID_BUILDING in unit.types and unit.action == unit.ID_STOP and unit.selected == True:
+                            if ID_BUILDING in unit.types and unit.action == ID_STOP and unit.selected == True:
                                 if len(unit.training_list) > 0:
                                     unit.train(players,  0)
                     if event.key == pygame.K_w:
                         for unit in players[activePlayer].unitgroup:
-                            if unit.ID_BUILDING in unit.types and unit.action == unit.ID_STOP and unit.selected == True:
+                            if ID_BUILDING in unit.types and unit.action == ID_STOP and unit.selected == True:
                                 if len(unit.training_list) > 1:
                                     unit.train(players,  1)
                     if event.key == pygame.K_e:
                         for unit in players[activePlayer].unitgroup:
-                            if unit.ID_BUILDING in unit.types and unit.action == unit.ID_STOP and unit.selected == True:
+                            if ID_BUILDING in unit.types and unit.action == ID_STOP and unit.selected == True:
                                 if len(unit.training_list) > 2:
                                     unit.train(players,  2)
             else:
@@ -148,7 +154,7 @@ def main():
                         if event.button == 1:
                             unit_in_cursor = False
                             for unit in players[activePlayer].unitgroup:
-                                if unit.selected == True and unit.ID_UNIT in unit.types:
+                                if unit.selected == True and ID_UNIT in unit.types:
                                     for target in groups.unitgroup:
                                         if target.isPressed(pygame.mouse.get_pos()) and target != unit and target.targetable == True:
                                             unit.attack(target)
@@ -172,16 +178,17 @@ def main():
             if unit.targetable == True:
                 pygame.draw.rect(screen,(0,0,0),(unit.rect.left,unit.rect.top-7,unit.rect.width,3))
                 pygame.draw.rect(screen,unit.owner.color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
-                if unit.ID_BUILDING in unit.types and unit.action == unit.ID_TRAIN:
+                if ID_BUILDING in unit.types and unit.action == ID_TRAIN:
                     pygame.draw.rect(screen,(0,255,0),(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getBuildingProgress(),5))
 
             if unit.selected == True:
                 pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)
 
         font = pygame.font.Font(None, 25)
-        text1.newmsg("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+" Mineral", players[activePlayer].color)
+        text1.newmsg("Player"+str(activePlayer)+":  "+players[activePlayer].name+"  "+str(players[activePlayer].mineral)+" Mineral " +  str(players[activePlayer].supply) + "/" + str(players[activePlayer].max_supply) +   " Supply", players[activePlayer].color)
         groups.allgroup.draw(screen)
         pygame.display.flip( ) #update the screen
+        for player in players: player.update()
 
     replay_list.append("quit")
     pygame.quit()

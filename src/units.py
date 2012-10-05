@@ -2,14 +2,14 @@ from base_units import *
 
 class Worker(Unit):
     name = "Worker"
-    supply = 1
-    cost = 50
+    supply_cost = 1
+    mineral_cost = 50
     building_time = 100.0
     
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
         self.image_file = tools.filepath("worker.png")
-        self.id = self.ID_WORKER
+        self.id = ID_WORKER
         self.maxHP = 65
         self.speed = 2.5
         self.damage = 6
@@ -20,14 +20,14 @@ class Worker(Unit):
 
 class Ranged(Unit):
     name = "Ranged"
-    supply = 1
-    cost = 40
+    supply_cost = 1
+    mineral_cost = 40
     building_time = 100.0
     
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
         self.image_file = tools.filepath("ranged.png")
-        self.id = self.ID_RANGED
+        self.id = ID_RANGED
         self.AttackAnimation = RangedAttack
         self.maxHP = 50
         self.speed = 2.2
@@ -40,14 +40,14 @@ class Ranged(Unit):
 
 class Tank(Unit):
     name = "Tank"
-    supply = 2
-    cost = 100
+    supply_cost = 2
+    mineral_cost = 100
     building_time = 170.0
     
     def __init__(self, startx,starty,owner):
         Unit.__init__(self,startx,starty,owner)
         self.image_file = tools.filepath("tank.png")
-        self.id = self.ID_TANK
+        self.id = ID_TANK
         self.AttackAnimation = RangedAttack
         self.maxHP = 125
         self.speed = 1.8
@@ -60,13 +60,14 @@ class Tank(Unit):
 
 class Nexus(Building):
     name = "Nexus"
+    extra_max_supply = 10
     
     def __init__(self, startx,starty,owner):
         Building.__init__(self,startx,starty,owner)
 
         self.image_file =  tools.filepath("nexus.png")
         self.size = 5
-        self.id = self.ID_NEXUS
+        self.id = ID_NEXUS
         self.maxHP = 600
         self.phRes = 0.3
         self.training_list = [Worker,  Ranged,  Tank]
@@ -83,7 +84,7 @@ class Turret(Building):
 
         self.AttackAnimation = RangedAttack
         self.image_file =  tools.filepath("turret.png")
-        self.id = self.ID_TURRET
+        self.id = ID_TURRET
         self.maxHP = 300
         self.phRes = 0.20
         self.damage = 10
@@ -108,6 +109,6 @@ class Mineral(NeutralStuff):
         NeutralStuff.__init__(self,startx,starty,owner)
 
         self.image_file = tools.filepath("mineral.png")
-        self.id = self.ID_MINERAL
+        self.id = ID_MINERAL
 
         self.unit_init()
