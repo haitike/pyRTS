@@ -41,8 +41,8 @@ def main():
 
     # Players
     players = [Player("Neutral"),
-               Player("Good Guys", True, 750, (0,0,255)),
-               Player("The Evil", True, 750, (255,0,0)),]
+               Player("Good Guys", True, 50, (0,0,255)),
+               Player("The Evil", True, 50, (255,0,0)),]
     players[1].enemies = [players[2]]
     players[2].enemies = [players[1]]
 
@@ -55,21 +55,23 @@ def main():
         Text(text, (255,255,255),(game_data.width-250,0+i*20))
 
     # Initial Units
-    Mineral(480,50,players[0])
-    Mineral(520,50,players[0])
-    Mineral(560,50,players[0])
-    Mineral(600,50,players[0])
+    MineralPatch(480,50,players[0])
+    MineralPatch(520,50,players[0])
+    MineralPatch(560,50,players[0])
+    MineralPatch(600,50,players[0])
     Worker(520, 150,players[1])
     Worker(560, 150,players[1])
     Nexus(540,200,players[1])    
 
-    Mineral(480,1350,players[0])
-    Mineral(520,1350,players[0])
-    Mineral(560,1350,players[0])
-    Mineral(600,1350,players[0])
+
+    MineralPatch(480,1350,players[0])
+    MineralPatch(520,1350,players[0])
+    MineralPatch(560,1350,players[0])
+    MineralPatch(600,1350,players[0])
     Worker(520, 1250,players[2])
     Worker(560, 1250,players[2])
-    Turret(540,1200,players[2]) 
+    Nexus(540,1200,players[2]) 
+    Turret(590,1200,players[2])
 
     # Main Loop
     clock=pygame.time.Clock()
@@ -137,17 +139,17 @@ def main():
                         for unit in players[activePlayer].unitgroup:
                             if ID_BUILDING in unit.types and unit.action == ID_STOP and unit.selected == True:
                                 if len(unit.training_list) > 0:
-                                    unit.train(players,  0)
+                                    unit.train(0)
                     if event.key == pygame.K_w:
                         for unit in players[activePlayer].unitgroup:
                             if ID_BUILDING in unit.types and unit.action == ID_STOP and unit.selected == True:
                                 if len(unit.training_list) > 1:
-                                    unit.train(players,  1)
+                                    unit.train(1)
                     if event.key == pygame.K_e:
                         for unit in players[activePlayer].unitgroup:
                             if ID_BUILDING in unit.types and unit.action == ID_STOP and unit.selected == True:
                                 if len(unit.training_list) > 2:
-                                    unit.train(players,  2)
+                                    unit.train(2)
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pos()[1] < (game_data.height - game_data.infobar_height):
@@ -180,6 +182,8 @@ def main():
                 pygame.draw.rect(screen,unit.owner.color,(unit.rect.left,unit.rect.top-7,unit.rect.width*unit.getLifeBar(),3))
                 if ID_BUILDING in unit.types and unit.action == ID_TRAIN:
                     pygame.draw.rect(screen,(0,255,0),(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.getBuildingProgress(),5))
+                if ID_HARVESTER in unit.types and unit.action == ID_HARVEST:
+                    pygame.draw.rect(screen,(0,255,0),(unit.rect.left,unit.rect.bottom,unit.rect.width*unit.passives[0].getHarvestingProgress(),5))
 
             if unit.selected == True:
                 pygame.draw.ellipse(screen,(0,255,0), unit.rect.inflate(SELECTION_EXTRAX,SELECTION_EXTRAY), 1)

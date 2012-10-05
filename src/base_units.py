@@ -19,7 +19,7 @@ class BaseObject(pygame.sprite.Sprite):
     building_time = 0
 
     def __init__(self, startx,starty,owner=None):
-        self.image_file = tools.filepath("placeholder.png")
+        self.image_files = {"base" : "placeholder.png"}
         self._layer = 2
 
         # Unit Tecnical Stuff
@@ -50,7 +50,7 @@ class BaseObject(pygame.sprite.Sprite):
     def unit_init(self):
         self.groups = groups.unitgroup, groups.allgroup, self.owner.unitgroup
         pygame.sprite.Sprite.__init__(self, self.groups)
-        self.base_image = pygame.image.load(self.image_file)
+        self.base_image = pygame.image.load(tools.filepath(self.image_files["base"]))
         self.image = self.base_image
         self.rect = self.image.get_rect()
         self.rect.centerx = round(self.trueX + game_data.camera[0])
@@ -72,9 +72,9 @@ class BaseObject(pygame.sprite.Sprite):
         for passive in self.passives:
             passive.update()
 
-    def changeImage(self,image_file):
-        self.base_image = pygame.image.load(image_file)
-        self.image = pygame.image.load(image_file)
+    def changeImage(self,image="base"):
+        self.base_image = pygame.image.load(tools.filepath(self.image_files[image]))
+        self.image = self.base_image
         self.rect = self.image.get_rect()
 
     def isPressed(self,mouse):
@@ -127,7 +127,7 @@ class Building(BaseObject):
             else:
                 self.building_progress -= 1
 
-    def train(self, players,  unit_index = 0):
+    def train(self, unit_index = 0):
         self.training_unit = self.training_list[unit_index]
         if self.owner.mineral >= self.training_unit.mineral_cost and self.training_unit.supply_cost <= (self.owner.max_supply - self.owner.supply)  and self.action == ID_STOP:
             self.building_progress = self.training_unit.building_time
@@ -158,8 +158,8 @@ class Unit(BaseObject):
         self.attack_move_location = self.trueX, self.trueY
         
         #Unit Stats
-        self.speed = 0
-        self.damage = 0
+        self.speed = 2
+        self.damage = 10
         self.range = 100
         self.atSpeed = 1
         

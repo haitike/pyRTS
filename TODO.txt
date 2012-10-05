@@ -22,3 +22,5 @@ Improved Camera (Positive variables. Direct convertion with the map)
 Fix the "dance" sprite draw while moving. Improved!!!
 Menu principal sin resetear la ventana. Organizar por Scenes de menu.
 Space: Reset Camera improved
+Fix: engine.py "Updates and Draw" Section. It draws harvest Progress with Passive[0] but the harverst passive could be another index.
+Right now Mineral in a mineral patch must be multple of Harvest amount. Example: if you set Mineral patch to 57 HP, workers will get 60 from them.
