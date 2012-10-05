@@ -69,7 +69,7 @@ def main():
     Mineral(600,1350,players[0])
     Worker(520, 1250,players[2])
     Worker(560, 1250,players[2])
-    Nexus(540,1200,players[2]) 
+    Turret(540,1200,players[2]) 
 
     # Main Loop
     clock=pygame.time.Clock()

@@ -40,12 +40,12 @@ class BaseObject(pygame.sprite.Sprite):
         self.size = 2
         self.maxHP= 100
         self.hpReg = 0.0
-        self.speed = 0
-        self.damage = 0
-        self.range = 100
         self.phRes = 0
-        self.atSpeed = 1
         self.vision = 150
+
+        # Other
+        self.skills = []
+        self.passives = []
 
     def unit_init(self):
         self.groups = groups.unitgroup, groups.allgroup, self.owner.unitgroup
@@ -68,6 +68,9 @@ class BaseObject(pygame.sprite.Sprite):
         if self.hp <= 0:
             self.kill()
             pygame.event.post(pygame.event.Event(pygame.USEREVENT))
+            
+        for passive in self.passives:
+            passive.update()
 
     def changeImage(self,image_file):
         self.base_image = pygame.image.load(image_file)
@@ -87,23 +90,6 @@ class BaseObject(pygame.sprite.Sprite):
         life = (self.maxHP- (self.maxHP- self.hp)) / float(self.maxHP)
         if life > 0: return life
         else: return 0
-
-    def getEnemyDistance(self, enemy):
-        if enemy != None: return math.sqrt((self.trueX - enemy.trueX) **2 + (self.trueY - enemy.trueY)**2)
-        else: return None
-
-    def getNewEnemy(self):
-        units_in_range = []
-        for enemy in self.owner.enemies:
-            for target in enemy.unitgroup:
-                if target != self and target.targetable == True:
-                    if self.getEnemyDistance(target) < self.vision:
-                        units_in_range.append((self.getEnemyDistance(target),target))
-        if units_in_range == []:
-            return None
-        else:
-            return sorted(units_in_range)[0][1]
-
 
 class NeutralStuff(BaseObject):
     def __init__(self, startx,starty,owner=0):
@@ -170,6 +156,12 @@ class Unit(BaseObject):
         self.attack_timer = 30
         self.target_enemy = None
         self.attack_move_location = self.trueX, self.trueY
+        
+        #Unit Stats
+        self.speed = 0
+        self.damage = 0
+        self.range = 100
+        self.atSpeed = 1
         
     def update(self, seconds):
         BaseObject.update(self,seconds)
@@ -245,3 +237,19 @@ class Unit(BaseObject):
         self.target_location = target
         self.move(target,3)
         self.action = ID_ATTACK_MOVE
+
+    def getEnemyDistance(self, enemy):
+        if enemy != None: return math.sqrt((self.trueX - enemy.trueX) **2 + (self.trueY - enemy.trueY)**2)
+        else: return None
+
+    def getNewEnemy(self):
+        units_in_range = []
+        for enemy in self.owner.enemies:
+            for target in enemy.unitgroup:
+                if target != self and target.targetable == True:
+                    if self.getEnemyDistance(target) < self.vision:
+                        units_in_range.append((self.getEnemyDistance(target),target))
+        if units_in_range == []:
+            return None
+        else:
+            return sorted(units_in_range)[0][1]

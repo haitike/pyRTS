@@ -21,3 +21,4 @@ Use Seconds in the Sprite Updates for Time Stuff.
 Improved Camera (Positive variables. Direct convertion with the map)
 Fix the "dance" sprite draw while moving. Improved!!!
 Menu principal sin resetear la ventana. Organizar por Scenes de menu.
+Space: Reset Camera improved

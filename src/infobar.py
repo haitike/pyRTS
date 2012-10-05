@@ -5,7 +5,7 @@ import game_data, groups
 
 # Sprite _Layers
 #  8) Infobar
-#  9) Minimap | SelectionBox | HeroBox
+#  9) Minimap | SelectionBox
 
 class Infobar(sprite.Sprite):
     def __init__(self):
@@ -19,7 +19,6 @@ class Infobar(sprite.Sprite):
 
         self.minimap = Minimap()
         SelectionBox()
-        HeroBox()
 
     def update(self, seconds):
         #self.image = Surface((game_data.width, game_data.infobar_height))
@@ -118,6 +117,3 @@ class SelectionBox(sprite.Sprite):
             if unit.selected == True:
                 selected.append(unit)
         return selected
-
-class HeroBox():
-    pass
